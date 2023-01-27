@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta><title>Windows 系统事件类型 - Resek&#039;s Kingdom</title><link rel="manifest" href="/manifest.json"><meta name="application-name" content="Resek&#039;s Kingdom"><meta name="msapplication-TileImage" content="/img/favicon.jpg"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Resek&#039;s Kingdom"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="description" content="简介 闲聊 Windows 系统日志   早期版本中 Windows 日志只有，应用程序，安全，系统和 Setup，新的版本中增加了设置及转发事件日志（默认禁用）。  系统内置的三个核心日志文件（System，Security 和 Application）默认大小均为 20480KB（20MB），记录事件数据超过 20MB 时，默认系统将优先覆盖过期的日志记录。其它应用程序及服务日志默认最大为 1"><meta property="og:type" content="blog"><meta property="og:title" content="Windows 系统事件类型"><meta property="og:url" content="https://resek4.github.io/2021/03/12/Windows%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97%E6%BA%AF%E6%BA%90/"><meta property="og:site_name" content="Resek&#039;s Kingdom"><meta property="og:description" content="简介 闲聊 Windows 系统日志   早期版本中 Windows 日志只有，应用程序，安全，系统和 Setup，新的版本中增加了设置及转发事件日志（默认禁用）。  系统内置的三个核心日志文件（System，Security 和 Application）默认大小均为 20480KB（20MB），记录事件数据超过 20MB 时，默认系统将优先覆盖过期的日志记录。其它应用程序及服务日志默认最大为 1"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://resek4.github.io/img/og_image.png"><meta property="article:published_time" content="2021-03-11T16:00:00.000Z"><meta property="article:modified_time" content="2023-01-27T09:19:13.882Z"><meta property="article:author" content="Resek4"><meta property="twitter:card" content="summary"><meta property="twitter:image" content="/img/og_image.png"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://resek4.github.io/2021/03/12/Windows%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97%E6%BA%AF%E6%BA%90/"},"headline":"Windows 系统事件类型","image":["https://resek4.github.io/img/og_image.png"],"datePublished":"2021-03-11T16:00:00.000Z","dateModified":"2023-01-27T09:19:13.882Z","author":{"@type":"Person","name":"Resek4"},"publisher":{"@type":"Organization","name":"Resek's Kingdom","logo":{"@type":"ImageObject","url":"https://resek4.github.io/img/logo.jpg"}},"description":"简介 闲聊 Windows 系统日志   早期版本中 Windows 日志只有，应用程序，安全，系统和 Setup，新的版本中增加了设置及转发事件日志（默认禁用）。  系统内置的三个核心日志文件（System，Security 和 Application）默认大小均为 20480KB（20MB），记录事件数据超过 20MB 时，默认系统将优先覆盖过期的日志记录。其它应用程序及服务日志默认最大为 1"}</script><link rel="canonical" href="https://resek4.github.io/2021/03/12/Windows%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97%E6%BA%AF%E6%BA%90/"><link rel="icon" href="/img/favicon.jpg"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/xt256.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600&amp;family=Roboto+Mono"><link rel="stylesheet" href="/css/cyberpunk.css"><style>body>.footer,body>.navbar,body>.section{opacity:0}</style><!--!--><!--!--><!--!--><!--!--><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/css/lightgallery.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/css/justifiedGallery.min.css"><!--!--><!--!--><style>.pace{-webkit-pointer-events:none;pointer-events:none;-webkit-user-select:none;-moz-user-select:none;user-select:none}.pace-inactive{display:none}.pace .pace-progress{background:#3273dc;position:fixed;z-index:2000;top:0;right:100%;width:100%;height:2px}</style><script src="https://cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js"></script><!--!--><!--!--><meta name="generator" content="Hexo 6.2.0"></head><body class="is-3-column"><nav class="navbar navbar-main"><div class="container"><div class="navbar-brand justify-content-center"><a class="navbar-item navbar-logo" href="/"><img src="/img/logo.jpg" alt="Resek&#039;s Kingdom" height="28"></a></div><div class="navbar-menu"><div class="navbar-start"><a class="navbar-item" href="/">Home</a><a class="navbar-item" href="/archives">Archives</a><a class="navbar-item" href="/categories">Categories</a><a class="navbar-item" href="/tags">Tags</a></div><div class="navbar-end"><a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Resek4/resek4.github.io"><i class="fab fa-github"></i></a><a class="navbar-item is-hidden-tablet catalogue" title="Catalogue" href="javascript:;"><i class="fas fa-list-ul"></i></a><a class="navbar-item search" title="Search" href="javascript:;"><i class="fas fa-search"></i></a></div></div></div></nav><section class="section"><div class="container"><div class="columns"><div class="column order-2 column-main is-8-tablet is-8-desktop is-6-widescreen"><div class="card"><article class="card-content article" role="article"><div class="article-meta is-size-7 is-uppercase level is-mobile"><div class="level-left"><span class="level-item">Posted&nbsp;<time dateTime="2021-03-11T16:00:00.000Z" title="3/12/2021, 12:00:00 AM">2021-03-12</time></span><span class="level-item">Updated&nbsp;<time dateTime="2023-01-27T09:19:13.882Z" title="1/27/2023, 5:19:13 PM">2023-01-27</time></span><span class="level-item"><a class="link-muted" href="/categories/Penetration/">Penetration</a></span><span class="level-item">11 minutes read (About 1582 words)</span></div></div><h1 class="title is-3 is-size-4-mobile">Windows 系统事件类型</h1><div class="content"><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/175560.html">闲聊 Windows 系统日志</a></li>
+</ul>
+<blockquote>
+<p>早期版本中 Windows 日志只有，应用程序，安全，系统和 Setup，新的版本中增加了设置及转发事件日志（默认禁用）。</p>
+</blockquote>
+<p>系统内置的三个核心日志文件（System，Security 和 Application）默认大小均为 20480KB（20MB），记录事件数据超过 20MB 时，默认系统将优先覆盖过期的日志记录。其它应用程序及服务日志默认最大为 1024KB，超过最大限制也优先覆盖过期的日志记录。</p>
+<blockquote>
+<p>登录成功不代表一定是 rdp 登录，所有事件的登录类型都是 4624</p>
+</blockquote>
+<span id="more"></span>
+<h1 id="方法论"><a href="#方法论" class="headerlink" title="方法论"></a>方法论</h1><ul>
+<li>通常是通过在事件查看器中：<strong>筛选当前日志</strong>-&gt;<strong>事件 ID 写 4624 等</strong></li>
+</ul>
+<h1 id="Windows-事件类型（级别）"><a href="#Windows-事件类型（级别）" class="headerlink" title="Windows 事件类型（级别）"></a>Windows 事件类型（级别）</h1><table>
+<thead>
+<tr>
+<th>级别</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>信息（Information）</td>
+<td>信息事件指应用程序、驱动程序或服务的成功操作的事件。</td>
+</tr>
+<tr>
+<td>警告（Warning）</td>
+<td>警告事件指不是直接的、主要的，但是会导致将来问题发生的问题。例如，当磁盘空间不足或未找到打印机时，都会记录一个“警告”事件。</td>
+</tr>
+<tr>
+<td>错误（Error）</td>
+<td>错误事件指用户应该知道的重要的问题。错误事件通常指功能和数据的丢失。例如,如果一个服务不能作为系统引导被加载，那么它会产生一个错误事件。</td>
+</tr>
+<tr>
+<td>成功审核（Success audit）</td>
+<td>成功的审核安全访问尝试，主要是指安全性日志，这里记录着用户登录&#x2F;注销、对象访问、特权使用、账户管理、策略更改、详细跟踪、目录服务访问、账户登录等事件，例如所有的成功登录系统都会被记录为“ 成功审核”事件。</td>
+</tr>
+<tr>
+<td>失败审核（Failure audit）</td>
+<td>失败的审核安全登录尝试，例如用户试图访问网络驱动器失败，则该尝试会被作为失败审核事件记录下来。</td>
+</tr>
+</tbody></table>
+<h1 id="事件日志存储位置"><a href="#事件日志存储位置" class="headerlink" title="事件日志存储位置"></a>事件日志存储位置</h1><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>事件类型</th>
+<th>描述</th>
+<th>文件名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Windows 日志</td>
+<td>系统</td>
+<td>包含系统进程，设备磁盘活动等。事件记录了设备驱动无法正常启动或停止，硬件失败，重复 IP 地址，系统进程的启动，停止及暂停等行为。</td>
+<td>System.evtx</td>
+</tr>
+<tr>
+<td></td>
+<td>安全</td>
+<td>包含安全性相关的事件，如用户权限变更，登录及注销，文件及文件夹访问，打印等信息。</td>
+<td>Security.evtx</td>
+</tr>
+<tr>
+<td></td>
+<td>应用程序</td>
+<td>包含操作系统安装的应用程序软件相关的事件。事件包括了错误、警告及任何应用程序需要报告的信息，应用程序开发人员可以决定记录哪些信息。</td>
+<td>Application.evtx</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>事件类型</th>
+<th>描述</th>
+<th>文件名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>应用程序及服务日志</td>
+<td>Microsoft</td>
+<td>Microsoft 文件夹下包含了 200 多个微软内置的事件日志分类，只有部分类型默认启用记录功能，如远程桌面客户端连接、无线网络、有线网路、设备安装等相关日志</td>
+<td>详见日志存储目录对应文件</td>
+</tr>
+<tr>
+<td></td>
+<td>Windows PowerShell</td>
+<td>Windows 自带的 PowerShell 应用的日志信息。</td>
+<td>Windows PowerShell.evtx</td>
+</tr>
+<tr>
+<td></td>
+<td>Internet Explorer</td>
+<td>IE 浏览器应用程序的日志信息，默认未启用，需要通过组策略进行配置。</td>
+<td>Internet Explorer.evtx</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>%SystemRoot% 为系统环境变量，默认值在 <code>C:/WINDOWS</code></p>
+</blockquote>
+<h1 id="事件-ID-及含义"><a href="#事件-ID-及含义" class="headerlink" title="事件 ID 及含义"></a>事件 ID 及含义</h1><table>
+<thead>
+<tr>
+<th>事件 ID</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1102</td>
+<td>清理审计日志</td>
+</tr>
+<tr>
+<td>4624</td>
+<td>账号成功登录</td>
+</tr>
+<tr>
+<td>4625</td>
+<td>账号登录失败</td>
+</tr>
+<tr>
+<td>4768</td>
+<td>Kerberos 身份验证（TGT 请求）</td>
+</tr>
+<tr>
+<td>4769</td>
+<td>Kerberos 服务票证请求</td>
+</tr>
+<tr>
+<td>4776</td>
+<td>NTLM 身份验证</td>
+</tr>
+<tr>
+<td>4672</td>
+<td>授予特殊权限</td>
+</tr>
+<tr>
+<td>4720</td>
+<td>创建用户</td>
+</tr>
+<tr>
+<td>4726</td>
+<td>删除用户</td>
+</tr>
+<tr>
+<td>4728</td>
+<td>将成员添加到启用安全组的全局组中</td>
+</tr>
+<tr>
+<td>4729</td>
+<td>将成员从安全的全局组中移除</td>
+</tr>
+<tr>
+<td>4732</td>
+<td>将成员添加到启用安全的本地组中</td>
+</tr>
+<tr>
+<td>4733</td>
+<td>将成员从启用安全的本地组中移除</td>
+</tr>
+<tr>
+<td>4756</td>
+<td>将成员添加到启用安全组的通用组中</td>
+</tr>
+<tr>
+<td>4757</td>
+<td>将成员从启用安全组的通用组中移除</td>
+</tr>
+<tr>
+<td>4719</td>
+<td>系统审计策略修改</td>
+</tr>
+<tr>
+<td>104</td>
+<td>所有审计日志清除事件</td>
+</tr>
+<tr>
+<td>4727、4737、4739、4762</td>
+<td>表示当用户组发生添加、删除时或组内添加成员时生成该事件</td>
+</tr>
+<tr>
+<td>4688</td>
+<td>表示创建进程，本地执行 exe</td>
+</tr>
+<tr>
+<td>4741</td>
+<td>计算机账户已创建</td>
+</tr>
+<tr>
+<td>4742</td>
+<td>计算机账户已更改</td>
+</tr>
+<tr>
+<td>4723</td>
+<td>尝试更改账户密码</td>
+</tr>
+<tr>
+<td>4724</td>
+<td>尝试重置账户密码</td>
+</tr>
+<tr>
+<td>4726</td>
+<td>用户账户已被删除</td>
+</tr>
+<tr>
+<td>4672</td>
+<td>使用管理员（或者超级用户）进行登录</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>五种事件类型中，最为重要的就是<strong>成功审核（Success Audit）</strong>，所有登录成功都会被标注为成功审核</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>登录类型</th>
+<th>描述</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2</td>
+<td>交互式登录（Interactive）</td>
+<td>用户在本地进行登录</td>
+</tr>
+<tr>
+<td>3</td>
+<td>网络（Network）</td>
+<td>常见的情况就是连接到共享文件夹或共享打印机时，如 SMB 爆破——蠕虫病毒</td>
+</tr>
+<tr>
+<td>4</td>
+<td>批处理（Batch）</td>
+<td>通常表示某计划任务正在启动</td>
+</tr>
+<tr>
+<td>5</td>
+<td>服务（service）</td>
+<td>每种服务都被配置在某个特定的用户账号下运行</td>
+</tr>
+<tr>
+<td>6</td>
+<td>不支持</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>解锁（Unlock）</td>
+<td>屏保解锁。</td>
+</tr>
+<tr>
+<td>8</td>
+<td>网络明文（NetworkCleartext）</td>
+<td>登录的密码在网络上是通过明文传输的，如 FTP</td>
+</tr>
+<tr>
+<td>9</td>
+<td>新凭证（NewCredentials）</td>
+<td>使用带&#x2F;Netonly 参数的 RUNAS 命令运行一个程序</td>
+</tr>
+<tr>
+<td>10</td>
+<td>远程交互（RemoteInteractive）</td>
+<td>通过终端服务、远程桌面或远程协助访问计算机，如 RDP 爆破——勒索病毒</td>
+</tr>
+<tr>
+<td>11</td>
+<td>缓存交互（CachedInteractive）</td>
+<td>以一个域用户登录而又没有域控制器可用</td>
+</tr>
+</tbody></table>
+<h1 id="文件共享-ID（端口-445）"><a href="#文件共享-ID（端口-445）" class="headerlink" title="文件共享 ID（端口 445）"></a>文件共享 ID（端口 445）</h1><p>文件共享对应事件 ID</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5140</td>
+<td>访问了网络共享对象</td>
+</tr>
+<tr>
+<td>5141</td>
+<td>目录服务对象已删除</td>
+</tr>
+<tr>
+<td>5142</td>
+<td>添加了网络共享对象</td>
+</tr>
+<tr>
+<td>5143</td>
+<td>网络共享对象已被修改</td>
+</tr>
+<tr>
+<td>5144</td>
+<td>网络共享对象已删除</td>
+</tr>
+<tr>
+<td>5145</td>
+<td>检查网络共享对象以查看是否可以向客户端授予所需的访问权限，及详细的共享访问</td>
+</tr>
+</tbody></table>
+</div><div class="article-licensing box"><div class="licensing-title"><p>Windows 系统事件类型</p><p><a href="https://resek4.github.io/2021/03/12/Windows系统日志溯源/">https://resek4.github.io/2021/03/12/Windows系统日志溯源/</a></p></div><div class="licensing-meta level is-mobile"><div class="level-left"><div class="level-item is-narrow"><div><h6>Author</h6><p>Resek4</p></div></div><div class="level-item is-narrow"><div><h6>Posted on</h6><p>2021-03-12</p></div></div><div class="level-item is-narrow"><div><h6>Updated on</h6><p>2023-01-27</p></div></div><div class="level-item is-narrow"><div><h6>Licensed under</h6><p><a class="icons" rel="noopener" target="_blank" title="Creative Commons" href="https://creativecommons.org/"><i class="icon fab fa-creative-commons"></i></a><a class="icons" rel="noopener" target="_blank" title="Attribution" href="https://creativecommons.org/licenses/by/4.0/"><i class="icon fab fa-creative-commons-by"></i></a><a class="icons" rel="noopener" target="_blank" title="Noncommercial" href="https://creativecommons.org/licenses/by-nc/4.0/"><i class="icon fab fa-creative-commons-nc"></i></a></p></div></div></div></div></div><div class="addthis_inline_share_toolbox"></div><script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-604b3726d8c18ac5" defer></script></article></div><!--!--><nav class="post-navigation mt-4 level is-mobile"><div class="level-start"><a class="article-nav-prev level level-item link-muted" href="/2021/05/11/Linux%E5%85%B3%E9%94%AE%E5%AE%89%E5%85%A8%E6%96%87%E4%BB%B6%E5%90%8E%E9%97%A8%E6%8E%92%E6%9F%A5/"><i class="level-item fas fa-chevron-left"></i><span class="level-item">Linux 关键文件安全性排查(红蓝对抗)</span></a></div><div class="level-end"><a class="article-nav-next level level-item link-muted" href="/2021/02/19/%E6%8F%90%E6%9D%83/"><span class="level-item">简易提权知识点总结</span><i class="level-item fas fa-chevron-right"></i></a></div></nav><div class="card"><div class="card-content"><h3 class="title is-5">Comments</h3><script src="https://utteranc.es/client.js" repo="Resek4/resek4.github.io" issue-term="pathname" theme="dark-blue" crossorigin="anonymous" async></script></div></div></div><div class="column column-left is-4-tablet is-4-desktop is-3-widescreen  order-1"><div class="card widget" data-type="profile"><div class="card-content"><nav class="level"><div class="level-item has-text-centered flex-shrink-1"><div><figure class="image is-128x128 mx-auto mb-2"><img class="avatar" src="/img/avatar.jpg" alt="Resek4"></figure><p class="title is-size-4 is-block" style="line-height:inherit;">Resek4</p><p class="is-size-6 is-block">对黑客创意上下求索</p><p class="is-size-6 is-flex justify-content-center"><i class="fas fa-map-marker-alt mr-1"></i><span>NightCity</span></p></div></div></nav><nav class="level is-mobile"><div class="level-item has-text-centered is-marginless"><div><p class="heading">Posts</p><a href="/archives"><p class="title">29</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Categories</p><a href="/categories"><p class="title">4</p></a></div></div><div class="level-item has-text-centered is-marginless"><div><p class="heading">Tags</p><a href="/tags"><p class="title">0</p></a></div></div></nav><div class="level"><a class="level-item button is-primary is-rounded" href="https://github.com/Resek4" target="_blank" rel="noopener">Follow</a></div><div class="level is-mobile is-multiline"><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Github" href="https://github.com/Resek4"><i class="fab fa-github"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="Twitter" href="https://twitter.com/Resek_4"><i class="fab fa-twitter"></i></a><a class="level-item button is-transparent is-marginless" target="_blank" rel="noopener" title="RSS" href="https://resek4.github.io"><i class="fas fa-rss"></i></a></div></div></div><div class="card widget" data-type="archives"><div class="card-content"><div class="menu"><h3 class="menu-label">Archives</h3><ul class="menu-list"><li><a class="level is-mobile" href="/archives/2023/01/"><span class="level-start"><span class="level-item">January 2023</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/12/"><span class="level-start"><span class="level-item">December 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/10/"><span class="level-start"><span class="level-item">October 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/08/"><span class="level-start"><span class="level-item">August 2022</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/06/"><span class="level-start"><span class="level-item">June 2022</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2022/02/"><span class="level-start"><span class="level-item">February 2022</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/07/"><span class="level-start"><span class="level-item">July 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/06/"><span class="level-start"><span class="level-item">June 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/05/"><span class="level-start"><span class="level-item">May 2021</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/03/"><span class="level-start"><span class="level-item">March 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/02/"><span class="level-start"><span class="level-item">February 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2021/01/"><span class="level-start"><span class="level-item">January 2021</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/11/"><span class="level-start"><span class="level-item">November 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/09/"><span class="level-start"><span class="level-item">September 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/08/"><span class="level-start"><span class="level-item">August 2020</span></span><span class="level-end"><span class="level-item tag">2</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/07/"><span class="level-start"><span class="level-item">July 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/05/"><span class="level-start"><span class="level-item">May 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2020/01/"><span class="level-start"><span class="level-item">January 2020</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/12/"><span class="level-start"><span class="level-item">December 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li><li><a class="level is-mobile" href="/archives/2019/11/"><span class="level-start"><span class="level-item">November 2019</span></span><span class="level-end"><span class="level-item tag">1</span></span></a></li></ul></div></div></div><!--!--><div class="column-right-shadow is-hidden-widescreen is-sticky"></div></div><div class="column column-right is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only order-3 is-sticky"><div class="card widget" id="toc" data-type="toc"><div class="card-content"><div class="menu"><h3 class="menu-label">Catalogue</h3><ul class="menu-list"><li><a class="level is-mobile" href="#简介"><span class="level-left"><span class="level-item">1</span><span class="level-item">简介</span></span></a></li><li><a class="level is-mobile" href="#方法论"><span class="level-left"><span class="level-item">2</span><span class="level-item">方法论</span></span></a></li><li><a class="level is-mobile" href="#Windows-事件类型（级别）"><span class="level-left"><span class="level-item">3</span><span class="level-item">Windows 事件类型（级别）</span></span></a></li><li><a class="level is-mobile" href="#事件日志存储位置"><span class="level-left"><span class="level-item">4</span><span class="level-item">事件日志存储位置</span></span></a></li><li><a class="level is-mobile" href="#事件-ID-及含义"><span class="level-left"><span class="level-item">5</span><span class="level-item">事件 ID 及含义</span></span></a></li><li><a class="level is-mobile" href="#文件共享-ID（端口-445）"><span class="level-left"><span class="level-item">6</span><span class="level-item">文件共享 ID（端口 445）</span></span></a></li></ul></div></div><style>#toc .menu-list > li > a.is-active + .menu-list { display: block; }#toc .menu-list > li > a + .menu-list { display: none; }</style><script src="/js/toc.js" defer></script></div><div class="card widget" data-type="categories"><div class="card-content"><div class="menu"><h3 class="menu-label">Categories</h3><ul class="menu-list"><li><a class="level is-mobile" href="/categories/HackStyle/"><span class="level-start"><span class="level-item">HackStyle</span></span><span class="level-end"><span class="level-item tag">6</span></span></a></li><li><a class="level is-mobile" href="/categories/Penetration/"><span class="level-start"><span class="level-item">Penetration</span></span><span class="level-end"><span class="level-item tag">13</span></span></a></li><li><a class="level is-mobile" href="/categories/TechLearning/"><span class="level-start"><span class="level-item">TechLearning</span></span><span class="level-end"><span class="level-item tag">7</span></span></a></li><li><a class="level is-mobile" href="/categories/Toolkit/"><span class="level-start"><span class="level-item">Toolkit</span></span><span class="level-end"><span class="level-item tag">3</span></span></a></li></ul></div></div></div><div class="card widget" data-type="recent-posts"><div class="card-content"><h3 class="menu-label">Recents</h3><article class="media"><div class="media-content"><p class="date"><time dateTime="2023-01-09T16:00:00.000Z">2023-01-10</time></p><p class="title"><a href="/2023/01/10/Git/">Simple git use summary</a></p><p class="categories"><a href="/categories/TechLearning/">TechLearning</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-30T16:00:00.000Z">2022-12-31</time></p><p class="title"><a href="/2022/12/31/fzf/">fzf(Fuzzy File Finder) Usage Summary</a></p><p class="categories"><a href="/categories/Toolkit/">Toolkit</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-08T16:00:00.000Z">2022-12-09</time></p><p class="title"><a href="/2022/12/09/%E6%A0%91%E8%8E%93%E6%B4%BE%E6%90%AD%E5%BB%BA%E5%AE%B6%E5%BA%AD%E5%BD%B1%E9%99%A2/">使用树莓派搭建 Kodi 家庭影院</a></p><p class="categories"><a href="/categories/HackStyle/">HackStyle</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-12-06T16:00:00.000Z">2022-12-07</time></p><p class="title"><a href="/2022/12/07/%E6%A0%91%E8%8E%93%E6%B4%BE%E8%87%AA%E5%BB%BA%E5%9B%BE%E5%BA%8A/">使用 Raspberry Pi 自建 MinIO 图床</a></p><p class="categories"><a href="/categories/HackStyle/">HackStyle</a></p></div></article><article class="media"><div class="media-content"><p class="date"><time dateTime="2022-10-25T17:52:00.000Z">2022-10-26</time></p><p class="title"><a href="/2022/10/26/Arch%20Linux%20%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B/">Arch Linux 全流程安装纪实</a></p><p class="categories"><a href="/categories/Toolkit/">Toolkit</a></p></div></article></div></div></div></div></div></section><footer class="footer"><div class="container"><div class="level"><div class="level-start"><a class="footer-logo is-block mb-2" href="/"><img src="/img/logo.jpg" alt="Resek&#039;s Kingdom" height="28"></a><p class="is-size-7"><span>&copy; 2023 Resek4</span>  Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> &amp; <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a></p></div><div class="level-end"><div class="field has-addons"><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/"><i class="fab fa-creative-commons"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/"><i class="fab fa-creative-commons-by"></i></a></p><p class="control"><a class="button is-transparent is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/Resek4"><i class="fab fa-github"></i></a></p></div></div></div></div></footer><script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script><script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script><script>moment.locale("en");</script><script>var IcarusThemeSettings = {
+            article: {
+                highlight: {
+                    clipboard: true,
+                    fold: 'unfolded'
+                }
+            }
+        };</script><script src="/js/column.js"></script><script src="/js/animation.js"></script><a id="back-to-top" title="Back to top" href="javascript:;"><i class="fas fa-chevron-up"></i></a><script src="/js/back_to_top.js" defer></script><!--!--><!--!--><!--!--><script src="https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js" defer></script><script>window.addEventListener("load", () => {
+      window.cookieconsent.initialise({
+        type: "info",
+        theme: "edgeless",
+        static: false,
+        position: "bottom-left",
+        content: {
+          message: "This website uses cookies to improve your experience.",
+          dismiss: "Got it!",
+          allow: "Allow cookies",
+          deny: "Decline",
+          link: "Learn more",
+          policy: "Cookie Policy",
+          href: "https://www.cookiesandyou.com/",
+        },
+        palette: {
+          popup: {
+            background: "#edeff5",
+            text: "#838391"
+          },
+          button: {
+            background: "#4b81e8"
+          },
+        },
+      });
+    });</script><script src="https://cdn.jsdelivr.net/npm/lightgallery@1.10.0/dist/js/lightgallery.min.js" defer></script><script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.8.1/dist/js/jquery.justifiedGallery.min.js" defer></script><script>window.addEventListener("load", () => {
+            if (typeof $.fn.lightGallery === 'function') {
+                $('.article').lightGallery({ selector: '.gallery-item' });
+            }
+            if (typeof $.fn.justifiedGallery === 'function') {
+                if ($('.justified-gallery > p > .gallery-item').length) {
+                    $('.justified-gallery > p > .gallery-item').unwrap();
+                }
+                $('.justified-gallery').justifiedGallery();
+            }
+        });</script><!--!--><!--!--><!--!--><!--!--><!--!--><script src="/js/main.js" defer></script><div class="searchbox"><div class="searchbox-container"><div class="searchbox-header"><div class="searchbox-input-container"><input class="searchbox-input" type="text" placeholder="Type something..."></div><a class="searchbox-close" href="javascript:;">×</a></div><div class="searchbox-body"></div></div></div><script src="/js/insight.js" defer></script><script>document.addEventListener('DOMContentLoaded', function () {
+            loadInsight({"contentUrl":"/content.json"}, {"hint":"Type something...","untitled":"(Untitled)","posts":"Posts","pages":"Pages","categories":"Categories","tags":"Tags"});
+        });</script></body></html>
